@@ -1,0 +1,31 @@
+-----
+- __global__ -
+A2B : A->B
+bee : B->B->B
+AandC : B->C->A
+a : A
+b1 : B
+b2 : B
+c1 : C
+cc : A
+-----
+ - A -
+-----
+ - B -
+-----
+ - C -
+-----
+->
+ a : A
+ b : B
+ someBFunction : A->B
+-----
+->
+ b_1 : B
+ b_2 : B
+-----
+->
+ a : B
+ c : C
+ bb : B
+ d : A

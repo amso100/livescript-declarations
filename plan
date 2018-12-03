@@ -1,0 +1,9 @@
+Plan:
+- Assumption: The __global__ scope comes last, and functions come in same order as ast
+- Assumption: Only one nested scope.
+
+Create "basic" typegraph that contains subtype relations for user-defined classes.
+
+Go over all variables in the program, by the order in which they appear in the get_vars output.
+- In parallel, go over all variables in decls, by scope.
+	For variable x: get_vars[x] <: decls[x]

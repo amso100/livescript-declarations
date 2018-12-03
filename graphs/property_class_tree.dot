@@ -1,0 +1,33 @@
+digraph RGL__DirectedAdjacencyGraph {
+    __global__ [
+        fontsize = 8,
+        label = __global__
+    ]
+
+    "__global__::a$$$__global__" [
+        fontsize = 8,
+        label = "__global__::a$$$__global__"
+    ]
+
+    "__global__::b$$$__global__" [
+        fontsize = 8,
+        label = "__global__::b$$$__global__"
+    ]
+
+    "__global__::c$$$__global__" [
+        fontsize = 8,
+        label = "__global__::c$$$__global__"
+    ]
+
+    __global__ -> "__global__::a$$$__global__" [
+        fontsize = 8
+    ]
+
+    __global__ -> "__global__::b$$$__global__" [
+        fontsize = 8
+    ]
+
+    __global__ -> "__global__::c$$$__global__" [
+        fontsize = 8
+    ]
+}
