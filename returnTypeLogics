@@ -1,0 +1,37 @@
+Return Type Logics:
+
+Program.each_line do |line|
+
+# If found new function
+If function declaration found:
+	
+	# If there was no space between previous
+	# function and this one
+	If in_function == true:
+		parse_for_type(prev_line)
+	
+	in_function = true
+
+# If last (line was not first in program)
+# and (last line was inside function)
+# and (now stepping outside of function)
+If prev_line != nil and in_function == true and #tabs_at_start(line) == 0:
+	parse_for_type(line)
+	in_function = false
+
+# If line is empty
+If line.strip.length == 0:
+	next
+
+If declaration_found(line):
+	Add declaration of variable(s) to Current Function Hash
+
+parse_for_type: Looks at line, Current Vars Hash, and built Functions Hash
+to try and determine the type of the returned value.
+
+If last value is var (or var = ...)
+	Return type of var whether known or T-x
+	If var = f(x):
+		Return [return type of f(x)]
+	(If it is known, good. If not inferred or declared, arbitrary.
+	 If needs another function, we'll fill it in later.)

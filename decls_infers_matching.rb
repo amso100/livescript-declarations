@@ -6,6 +6,8 @@
 
 require('./typegraph.rb')
 require('set')
+require "./remove_decls.rb"
+require "./find_declarations.rb"
 
 # Class for a variable with declared type.
 class TypeDeclaredVar
@@ -35,12 +37,22 @@ class ClassInherits
 	end
 end
 
-def parse_declarations()
+def isArbitraryType(typeName)
+	if typeName =~ /T-[0-9]+/
+		return true
+	elsif typeName =~ /T'-[0-9]+/
+		return true
+	else
+		return false
+	end
+end
+
+def parse_declarations(program)
 	res = []
 	globals = []
 	tmp = []
 	i = -1
-	f_declarations = `ruby find_declarations.rb`
+	f_declarations = program
 	
 	f_declarations.each_line do |line|
 		aux = line.split(" ; ")
@@ -71,13 +83,18 @@ def parse_declarations()
 	return res
 end
 
-def parse_infers()
+def parse_infers(program)
 	res = []
 	globals = []
 	tmp = []
 	i = 0
 	
-	f_inferred = `ruby type_infers.rb test1_clean.ls`
+	aux = remove_decls(program)
+	f_in = File.new("for_params.ls", "w")
+	f_in.write(aux)
+	f_in.close()
+
+	f_inferred = `ruby type_infers.rb for_params.ls`
 	scopes = f_inferred.split("-----\n")
 	scopes.each do |scope|
 		scope.split("\n").each do |var|
@@ -111,12 +128,15 @@ def parse_infers()
 	end
 
 	res = [res, globals]
+
+	File.delete("for_params.ls")
+
 	return res
 end
 
-def parse_class_inheritance()
+def parse_class_inheritance(program)
 	res = []
-	f_prog = File.open("test1.ls").read
+	f_prog = program
 	f_prog.each_line do |line|
 		if line =~ /class [a-zA-z]{1}[A-Za-z0-9_]* extends [a-zA-z]{1}[A-Za-z0-9_]*\n?/
 			sbt, srt = line.match(/class ([a-zA-z]{1}[A-Za-z0-9_]*) extends ([a-zA-z]{1}[A-Za-z0-9_]*)\n?/i).captures
@@ -142,13 +162,13 @@ def add_type_if_needed(var1, var2, tg)
 	d_t = var1.declared_type
 	i_t = var2.inferred_type
 
-	if d_t == i_t
+	if not isArbitraryType(var1.declared_type) and not isArbitraryType(var2.inferred_type)
 		tg.add_type(d_t)
+		tg.add_type(i_t)
 		return
 	end
-	
-	tg.add_type(d_t)
-	tg.add_type(i_t)
+
+	# Otherwise, one of the types is T-x. We want to add the relationship.
 
 	# The type can be the declared one, or anything that inherits that.
 	#puts "#{i_t} is subtype of #{d_t}"
@@ -196,6 +216,10 @@ def add_necessary_connections(list1, list2, globals, direction)
 		end
 	end
 end
+
+prog = "
+
+"
 
 
 decls = parse_declarations()

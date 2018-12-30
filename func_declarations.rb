@@ -3,7 +3,7 @@
 # Entry example:
 # 	"f" -> ["A", "B", "T'-1", "A"]
 
-def print_function_declarations(text)
+def get_function_declarations(text)
 	text.gsub!(/\r\n?/, "\n")
 	lineno = 1
 	aribtrary_count = 0
@@ -12,7 +12,8 @@ def print_function_declarations(text)
 
 	text.each_line do |line|
 		func_name = ""
-		puts "Line \##{lineno}"
+		
+		# Test for function with multiple arguments
 		if line =~ /[A-Za-z]{1}[A-Za-z0-9_]* *= *\(([A-Za-z]{1}[A-Za-z0-9_]* *:= *[A-Za-z]{1}[A-Za-z0-9_]*,? *|[A-Za-z]{1}[A-Za-z0-9_]*,? *)*\) *->/
 			line.scan(/([A-Za-z]{1}[A-Za-z0-9_]*) *= *\(/) do |m|
 				func_name = m[0]
@@ -21,13 +22,21 @@ def print_function_declarations(text)
 			line[func_name.length..-1].scan(/([A-Za-z]{1}[A-Za-z0-9_]* *:= *[A-Za-z]{1}[A-Za-z0-9_]*,? *|[A-Za-z]{1}[A-Za-z0-9_]*,? *)/) do |m|
 				a = m[0].scan(/([A-Za-z]{1}[A-Za-z0-9_]*)/)
 				if a.length > 1
-					puts "var is #{a[0][0]}, Type is #{a[1][0]}"
+					# puts "var is #{a[0][0]}, Type is #{a[1][0]}"
 					functions_dict[func_name] << a[1][0]
 				else
-					puts "var is #{a[0][0]}"
+					# puts "var is #{a[0][0]}"
 					functions_dict[func_name] << "T'-#{aribtrary_count}"
 					aribtrary_count += 1
 				end
+			end
+
+		# Test for functions without any arguments
+		elsif line =~ /[A-Za-z]{1}[A-Za-z0-9_]* *= *->\n/
+			line.scan(/[A-Za-z]{1}[A-Za-z0-9_]*/) do |m|
+				func_name = m[0]
+				functions_dict[func_name] = Array.new
+				functions_dict[func_name] << "unit"
 			end
 		end
 		lineno += 1
@@ -47,11 +56,11 @@ g = (a, b, c) ->
 h = (x := int, y := double, z := A) ->
 	x * y
 
-j  =  () ->
+j  = ->
 	1
 "
 
-res = print_function_declarations(text)
+res = get_function_declarations(text)
 res.each_pair do |key, value|
 	puts "Function: #{key}"
 	puts "Arg types: #{value}"

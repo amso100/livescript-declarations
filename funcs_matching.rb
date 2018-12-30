@@ -3,6 +3,7 @@
 # really need to be declared or inferred-through-scc.
 
 require "./remove_decls.rb"
+require "./func_declarations"
 
 # Returns dictionary of all functions parsed,
 # with the inferred input types as their values.
@@ -16,41 +17,78 @@ def parse_inferred_funcs(program)
 
 	func_infers = `ruby type_infers.rb for_funcs.ls`
 	data = func_infers.split("- __global__ -")[1].split("-----")[0].split("\n")
-	puts data[2]
 	data.each do |funcLine|
-		if data.length < 2
+		if funcLine.length < 2
 			next
 		end
-		puts data
 		func_name = funcLine.split(" : ")[0]
-		
+
 		funcArgs  = funcLine.split(" : ")[1].split("->")
 		funcArgs.pop # Last element is return type
 
 		res[func_name] = Array.new
 		funcArgs.each do |argType|
-			if(argType != "unit")
-				res[func_name] << argType
-			end
+			res[func_name] << argType
 		end
 	end
+	File.delete("for_funcs.ls")
 	return res
 end
 
+def get_declared_funcs(program)
+	return get_function_declarations(program)
+end
+
+def isArbitraryType(typeName)
+	if typeName =~ /T-[0-9]+/
+		return true
+	elsif typeName =~ /T'-[0-9]+/
+		return true
+	else
+		return false
+	end
+end
+
+def findSubtypeRelations(program)
+	
+	functionsInferred = parse_inferred_funcs(program)
+
+	functionsDeclared = get_declared_funcs(program)
+
+	functionsDeclared.each_pair do |funcName, argTypes|
+		puts "Function name: #{funcName}"
+		inferredArgTypes = functionsInferred[funcName]
+		inferredArgTypes.each_with_index do |inferredType, ind|
+			if not isArbitraryType(inferredType)
+				next
+			else
+				if isArbitraryType(argTypes[ind])
+					puts "Unknown type of variable in function #{funcName}"
+				else
+					puts "#{inferredType} <: #{argTypes[ind]}"
+				end
+			end
+		end
+	end
+end
+
 text = "
-g = (a, b, c) ->
+f = (a := A, b := B, c := C, d := D) ->
 	a
-j = ->
-	10
+
+g = (a := A, b, c := C) ->
+	a += 0.1
+	b += 0.2
+	c = a + b
+	c
+
+
+h = (x, y, z) ->
+	x * y * z + 1
 "
 
-# text = "
-# foo = (a,b) ->
-#   a
-#"
+# j  = ->
+# 	1
+# "
 
-res = parse_inferred_funcs(text)
-res.each_pair do |k, v|
-	puts "Func name is #{k}"
-	puts "Func Args are #{v}"
-end
+findSubtypeRelations(text)
