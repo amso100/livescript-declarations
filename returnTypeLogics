@@ -16,7 +16,7 @@ If function declaration found:
 # and (last line was inside function)
 # and (now stepping outside of function)
 If prev_line != nil and in_function == true and #tabs_at_start(line) == 0:
-	parse_for_type(line)
+	parse_for_type(prev_line)
 	in_function = false
 
 # If line is empty
