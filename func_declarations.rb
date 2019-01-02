@@ -91,7 +91,7 @@ def single_var_return_statement(line)
 end
 
 def var_equals_exp_return_statement(line)
-	if line =~ /^\t+[A-Za-z]+[A-Za-z0-9_]* *= *.+\n/
+	if line =~ /^\t+[A-Za-z]+[A-Za-z0-9_]* *= *.+/
 		return line[/[A-Za-z0-9_]+/]
 	else
 		return false
@@ -136,12 +136,17 @@ def function_call_return_statement(line)
 end
 
 def parse_for_type(line, local_vars, global_vars, func_name, funcs_dict)
+	if lineHasGlobalVariable(line)
+		return nil
+	end
+	# puts line
 	var1 = single_var_return_statement(line)
 	var2 = var_equals_exp_return_statement(line)
 	var3 = constant_return_statement(line)
 	var4 = function_call_return_statement(line)
 	if var1 != false
 		# puts "111"
+		# puts var1
 		if local_vars[func_name] != nil and local_vars[func_name].keys.include?(var1)
 			return local_vars[func_name][var1].declared_type
 		elsif global_vars.keys.include?(var1)
@@ -166,12 +171,13 @@ def parse_for_type(line, local_vars, global_vars, func_name, funcs_dict)
 
 	elsif var4 != false
 		# puts "444"
+		# puts var4
 		if funcs_dict.keys.include?(var4)
 			return funcs_dict[var4].return_type
 		end
 
 	else
-		puts "Error identifying return variable"
+		# puts "Error identifying return variable"
 	end
 	return nil
 
@@ -199,10 +205,10 @@ def get_program_declarations(text)
 	global_vars = Hash.new
 
 	if global_variables_exist(text)
-		puts "Globals"
+		# puts "Globals"
 		scopeno = 1
 	else
-		puts "No globals"
+		# puts "No globals"
 		scopeno = 0
 	end
 
@@ -270,7 +276,7 @@ def get_program_declarations(text)
 				if ret_type != nil
 					functions_dict[func_name].return_type = ret_type
 				else
-					puts "Return type of function #{func_name} could not be determined."
+					#puts "Return type of function #{func_name} could not be determined."
 				end
 			end
 
@@ -295,12 +301,10 @@ def get_program_declarations(text)
 		# If exited scope and previous line is not null, parse
 		elsif prev_line != nil and count_tabs_at_start(line) == 0
 			ret_type = parse_for_type(prev_line, local_vars, global_vars, func_name, functions_dict)
-			if ret_type == nil
-			end
 			if ret_type != nil
 				functions_dict[func_name].return_type = ret_type
 			else
-				puts "Return type of function #{func_name} could not be determined."
+				#puts "Return type of function #{func_name} could not be determined."
 			end
 			in_function = false
 			scopeno = 0
@@ -381,23 +385,57 @@ end
 # 	1
 # "
 
-text = "
-m = new M
-m := M
-f = (a := A, c:=C) ->
-	b := B
-	b = new B
-	0
-h = (a := A) ->
-	f(a)
-g = (c := C) ->
-	c
-j =  ->
-	\'i\'
+# text = "
 
-k =  ->
-	m
-"
+# m = new M
+# m := M
+
+# f = (a := A, c:=C) ->
+# 	b := B
+# 	b = new B
+# 	0
+# h = (a := A) ->
+# 	f(a)
+# g = (c := C) ->
+# 	c
+# j =  ->
+# 	\'i\'
+
+# p = (n := N) ->
+# 	j()
+
+# q = (n := N) ->
+# 	g(n)
+
+# s = ->
+# 	q(1)
+
+# k =  ->
+# 	m
+# "
+
+text = "class A extends int
+class B extends A
+class C extends A
+
+A2B = (a) ->
+	b = new B
+	b = someBFunction(a)
+
+bee = (b_1, b_2) ->
+	A2B(b_1 + b_2)
+
+AandC = (a,c) ->
+	bb = A2B(c)
+	d = new C
+	d = A2B(bb)
+
+a = new A
+b1 = A2B(a)	
+b2 = A2B(a)
+bee(b1,b2)
+c1 = new C
+cc = AandC(b1,c1)"
 
 # text = "
 # class A extends int
