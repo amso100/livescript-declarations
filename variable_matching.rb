@@ -37,6 +37,18 @@ class TypeInferredVar
 	end
 end
 
+class InferredFunction
+	attr_accessor :name, :args_list, :return_type
+	def initialize(name)
+		@name = name
+		@args_list = Array.new
+	end
+end
+
+def parse_inferred_functions(program)
+	return nil
+end
+
 def parse_infers(program)
 	res =  Hash.new
 	tmp = []
@@ -135,19 +147,19 @@ end
 
 def tryToMatchVariables(program)
 	declared_vars = parse_declarations(program)
-	declared_vars.each_pair do |k,v|
-		puts "Scope #{k}:"
-		v.each do |var|
-			puts "#{var.name}: #{var.declared_type}"
-		end
-	end
+	# declared_vars.each_pair do |k,v|
+	# 	puts "Scope #{k}:"
+	# 	v.each do |var|
+	# 		puts "#{var.name}: #{var.declared_type}"
+	# 	end
+	# end
 	inferred_vars = parse_infers(program)
-	inferred_vars.each_pair do |k,v|
-		puts "Scope #{k}:"
-		v.each do |var|
-			puts "#{var.name}: #{var.inferred_type}"
-		end
-	end
+	# inferred_vars.each_pair do |k,v|
+	# 	puts "Scope #{k}:"
+	# 	v.each do |var|
+	# 		puts "#{var.name}: #{var.inferred_type}"
+	# 	end
+	# end
 
 	max1 = get_max_scope_num(declared_vars)
 	max2 = get_max_scope_num(inferred_vars)
@@ -184,23 +196,23 @@ def tryToMatchVariables(program)
 	end
 end
 
-# text = "
-# f = (a := A, b:= B, c, d, e:=     F) ->
-# 	a
-
-# g = (b, c:=C, e := E) ->
-# 	b
-# j =   ->
-# 	1
-# "
-
 text = "
-class A extends int
-
-f = (a := A) ->
+f = (a := A, b:= B, c, d, ff:=     F) ->
 	a
 
-a = f(new A)
+g = (b, c:=C, e := E) ->
+	b
+j =   ->
+	1
 "
+
+# text = "
+# class A extends int
+
+# f = (a := A) ->
+# 	a
+
+# a = f(new A)
+# "
 
 tryToMatchVariables(text)
