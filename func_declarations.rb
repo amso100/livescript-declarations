@@ -484,13 +484,8 @@ def isArbitraryType(typeName)
 	end
 end
 
-def parse_global_infers(program)
-
-end
-
 def parse_function_infers(program)
 	aux = remove_decls(program)
-	puts aux
 	f_in = File.new("for_params.ls", "w")
 	f_in.write(aux)
 	f_in.close()
@@ -498,13 +493,16 @@ def parse_function_infers(program)
 	functions_dict = Hash.new
 	
 	globals = []
-	global_scope = f_inferred.split("-----\n")[0]
+	global_scope = f_inferred.split("-----\n")[1]
 	global_scope.each_line do |line|
 		if line =~ /->/ # Function line
 			function_data = line.split(" : ")
 			func_name = function_data[0]
 			func_args_return = function_data[1].split("->")
-			return_type = func_args_return.pop(1)
+			return_type = func_args_return.pop(1)[0].strip
+			# puts "Func name: #{func_name}"
+			# puts "Return Type: #{return_type}"
+			# puts "Args List:"
 			
 			functions_dict[func_name] = TypeInferredFunction.new(func_name, return_type)
 
@@ -513,14 +511,14 @@ def parse_function_infers(program)
 			end
 		end
 	end
-
-
-
+	File.delete("for_params.ls")
+	return functions_dict
 end
 
-def parse_local_infers(program)
+def parse_locals_globals_infers(program)
 	res = []
 	tmp = []
+	globals = []
 	i = 0
 	
 	aux = remove_decls(program)
@@ -566,6 +564,11 @@ def parse_local_infers(program)
 	File.delete("for_params.ls")
 
 	return res
+end
+
+def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunctions,
+									declaredLocals, declatedGlobals, declaredFunctions)
+
 end
 
 # text = "
@@ -615,6 +618,9 @@ end
 # "
 
 text = "class A extends int
+class B extends A
+class M extends A
+class C extends double
 a = new A
 
 f = (a :- A, b :- B) ->
@@ -623,7 +629,7 @@ f = (a :- A, b :- B) ->
 g = (a) ->
 	c :- C
 	c = new C
-	x = j(s) 
+	x = j(a, c) 
 	10
 m = new M
 m :- M
@@ -635,12 +641,9 @@ j = (s, t) ->
 	a
 b = new B
 a :- A
-x = j()
-y = g(x)
-
-x :- X"
-
-parse_function_infers(text)
+x = j(a,m)
+y = g(a)
+"
 
 # text = "class A extends int
 # class B extends A
@@ -652,9 +655,8 @@ parse_function_infers(text)
 # 	b = new B
 # 	b = someBFunction(a)
 
-# bee = (b_1 :- B, b_2 :- B) ->
+# bee = (b_1, b_2) ->
 # 	c = 1
-# 	c :- int
 # 	A2B(b_1 + b_2)
 
 # AandC = (a,c) ->
@@ -672,6 +674,17 @@ parse_function_infers(text)
 # c1 = new C
 # cc = AandC(b1,c1)"
 
+# parse_function_infers(text)
+# res2 = parse_locals_globals_infers(text)
+# res_globs = res2[1]
+# res_local = res2[0]
+# res_globs.each do |varType|
+# 	puts "Var #{varType.name} in scope #{varType.scope} is of type #{varType.inferred_type}"
+# end
+# res_local.each do |varType|
+# 	puts "Var #{varType.name} in scope #{varType.scope} is of type #{varType.inferred_type}"
+# end
+
 # text = "
 # class A extends int
 # a = new A
@@ -688,7 +701,8 @@ parse_function_infers(text)
 # 	\"i\"
 # "
 
-total_res = getProgramDeclarationsAndReferences(text)
+# total_res = getProgramDeclarationsAndReferences(text)
+
 # res_funcs = total_res[0]
 # res_globs = total_res[1]
 # res_vars  = total_res[2]
