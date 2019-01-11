@@ -4,9 +4,9 @@ digraph RGL__DirectedAdjacencyGraph {
         label = int
     ]
 
-    "int (T-39)" [
+    "int (T-41)" [
         fontsize = 8,
-        label = "int (T-39)"
+        label = "int (T-41)"
     ]
 
     "A (T-1)" [
@@ -14,29 +14,34 @@ digraph RGL__DirectedAdjacencyGraph {
         label = "A (T-1)"
     ]
 
-    "A (T-34)" [
+    "A (T-12)" [
         fontsize = 8,
-        label = "A (T-34)"
+        label = "A (T-12)"
     ]
 
-    "A (T-31)" [
+    "A (T-36)" [
         fontsize = 8,
-        label = "A (T-31)"
+        label = "A (T-36)"
     ]
 
-    "A (T-14)" [
+    "A (T-33)" [
         fontsize = 8,
-        label = "A (T-14)"
+        label = "A (T-33)"
     ]
 
-    "M (T-22)" [
+    "A (T-16)" [
         fontsize = 8,
-        label = "M (T-22)"
+        label = "A (T-16)"
     ]
 
-    "M (T-32)" [
+    "M (T-24)" [
         fontsize = 8,
-        label = "M (T-32)"
+        label = "M (T-24)"
+    ]
+
+    "M (T-34)" [
+        fontsize = 8,
+        label = "M (T-34)"
     ]
 
     B [
@@ -44,14 +49,14 @@ digraph RGL__DirectedAdjacencyGraph {
         label = B
     ]
 
-    "B (T-33)" [
+    "B (T-35)" [
         fontsize = 8,
-        label = "B (T-33)"
+        label = "B (T-35)"
     ]
 
-    "B (T-6)" [
+    "B (T-7)" [
         fontsize = 8,
-        label = "B (T-6)"
+        label = "B (T-7)"
     ]
 
     M [
@@ -59,24 +64,24 @@ digraph RGL__DirectedAdjacencyGraph {
         label = M
     ]
 
-    "T-19" [
+    "T-21" [
         fontsize = 8,
-        label = "T-19"
+        label = "T-21"
     ]
 
-    "T-12" [
+    "T-14" [
         fontsize = 8,
-        label = "T-12"
+        label = "T-14"
     ]
 
-    "C (T-11)" [
+    "C (T-13)" [
         fontsize = 8,
-        label = "C (T-11)"
+        label = "C (T-13)"
     ]
 
-    "C (T-18)" [
+    "C (T-20)" [
         fontsize = 8,
-        label = "C (T-18)"
+        label = "C (T-20)"
     ]
 
     C [
@@ -89,47 +94,51 @@ digraph RGL__DirectedAdjacencyGraph {
         label = A
     ]
 
-    int -> "int (T-39)" [
+    int -> "int (T-41)" [
         fontsize = 8
     ]
 
-    "A (T-1)" -> "A (T-34)" [
+    "A (T-1)" -> "A (T-12)" [
         fontsize = 8
     ]
 
-    "A (T-1)" -> "A (T-31)" [
+    "A (T-1)" -> "A (T-36)" [
         fontsize = 8
     ]
 
-    "A (T-1)" -> "A (T-14)" [
+    "A (T-1)" -> "A (T-33)" [
         fontsize = 8
     ]
 
-    "M (T-22)" -> "M (T-32)" [
+    "A (T-1)" -> "A (T-16)" [
         fontsize = 8
     ]
 
-    B -> "B (T-33)" [
+    "M (T-24)" -> "M (T-34)" [
         fontsize = 8
     ]
 
-    B -> "B (T-6)" [
+    B -> "B (T-35)" [
         fontsize = 8
     ]
 
-    M -> "M (T-22)" [
+    B -> "B (T-7)" [
         fontsize = 8
     ]
 
-    "T-19" -> "T-12" [
+    M -> "M (T-24)" [
         fontsize = 8
     ]
 
-    "C (T-11)" -> "C (T-18)" [
+    "T-21" -> "T-14" [
         fontsize = 8
     ]
 
-    C -> "C (T-11)" [
+    "C (T-13)" -> "C (T-20)" [
+        fontsize = 8
+    ]
+
+    C -> "C (T-13)" [
         fontsize = 8
     ]
 

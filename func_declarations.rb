@@ -529,16 +529,21 @@ def parse_locals_globals_infers(program)
 	f_inferred = `ruby type_infers.rb for_params.ls`
 	scopes = f_inferred.split("-----\n")
 	scopes.each do |scope|
+		if scope =~ /->\n$/ # Empty function
+			i += 1
+			next
+		end
+		if scope.strip.length < 2
+			next
+		end
 		scope.split("\n").each do |var|
-			if var.include? "-"	# Don't want class/funcs declarations
+			
+			if var.include? "->" or var =~ /- [A-Za-z0-9_]+ -/ # Don't want class/funcs declarations
 				next
 			end
 			name = var.split(" : ")[0].strip
 			type = var.split(" : ")[1].strip
 			tmp << TypeInferredVar.new(name, type, i)
-		end
-		if scope.strip.length < 3
-			next
 		end
 
 		if tmp.length == 0
@@ -554,7 +559,7 @@ def parse_locals_globals_infers(program)
 		res = res + tmp
 	end
 
-	while res[0].scope == 0 do
+	while res.size > 0 and res[0].scope == 0 do
 		globals << res[0]
 		res = res.drop(1)
 	end
@@ -566,9 +571,74 @@ def parse_locals_globals_infers(program)
 	return res
 end
 
-def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunctions,
-									declaredLocals, declatedGlobals, declaredFunctions)
+def find_inferred_var_in_declared(var, declaredHash)
+	declaredHash.each_pair do |funcName, localVars|
+		if localVars.size == 0
+			next
+		elsif localVars[localVars.keys[0]].scope != var.scope
+			next
+		else
+			return localVars[var.name]
+		end
+	end
+	return nil
+end
 
+def find_inferred_var_in_globals(var, globalsHash)
+	return globalsHash[var.name]
+end
+
+def find_inferred_func_in_funcs(func, declaredFunctions)
+	return declaredFunctions[func]
+end
+
+def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunctions,
+									declaredLocals, declaredGlobals, declaredFunctions)
+	inferredLocals.each do |inferredVar|
+		if not isArbitraryType(inferredVar.inferred_type)
+			puts "Type of #{inferredVar.name} is #{inferredVar.inferred_type}"
+			next
+		end
+		
+		match = find_inferred_var_in_declared(inferredVar, declaredLocals)
+		if match != nil
+			puts "#{inferredVar.inferred_type} =:= #{match.declared_type}"
+		else
+			puts "Type of var #{inferredVar.name} was not declared."
+		end
+	end
+
+	puts ""
+
+	inferredGlobals.each do |inferredVar|
+		if not isArbitraryType(inferredVar.inferred_type)
+			puts "Type of #{inferredVar.name} is #{inferredVar.inferred_type}"
+			next
+		end
+		
+		match = find_inferred_var_in_globals(inferredVar, declaredGlobals)
+		if match != nil
+			puts "#{inferredVar.inferred_type} =:= #{match.declared_type}"
+		else
+			puts "Type of var #{inferredVar.name} was not declared."
+		end
+	end
+
+	puts ""
+
+	inferredFunctions.each_pair do |funcName, inferredFunc|
+		match = find_inferred_func_in_funcs(funcName, declaredFunctions)
+		puts "In function #{inferredFunc.name}"
+		if match != nil
+			if isArbitraryType(inferredFunc.return_type)
+				puts "#{inferredFunc.return_type} =:= #{match.return_type}"
+			end
+			inferredFunc.args.each_with_index do |val, index|
+				puts "Arg \##{index+1}: #{val} =:= #{match.args[index]}"
+			end
+		end
+		puts "-----------------------"
+	end
 end
 
 # text = "
@@ -617,33 +687,58 @@ end
 # 	m
 # "
 
-text = "class A extends int
-class B extends A
-class M extends A
-class C extends double
-a = new A
+# text = "class A extends int
+# class B extends A
+# class M extends A
+# class C extends double
+# a = new A
 
-f = (a :- A, b :- B) ->
-	b = new B
-	a
-g = (a) ->
-	c :- C
-	c = new C
-	x = j(a, c) 
-	10
-m = new M
-m :- M
+# f = (a1 :- A, b :- B) ->
+# 	b = new B
+# 	a1
+# g = (a1) ->
+# 	c :- C
+# 	c = new C
+# 	x = j(a, c) 
+# 	10
+# m = new M
+# m :- M
 
-k =  ->
-	m
-	b :- B
-j = (s, t) ->
-	a
-b = new B
-a :- A
-x = j(a,m)
-y = g(a)
-"
+# k =  ->
+# 	m
+# 	b :- B
+
+# j = (s :- S, t :- T) ->
+# 	a
+# b = new B
+# a :- A
+# x = j(a,m)
+# y = g(a)
+
+# noTypes = (b1 :- B, l :- L) ->
+# 	b1
+
+# "
+
+# text = "class A extends int
+# a = b
+# b = c
+# c = a
+# a :- A
+# b :- B
+# c :- C"
+
+res_declared = getProgramDeclarationsAndReferences(text)
+declared_funcs  = res_declared[0]
+declared_globs  = res_declared[1]
+declared_locals = res_declared[2]
+
+res_var_infers = parse_locals_globals_infers(text)
+inferred_locals = res_var_infers[0]
+inferred_globs  = res_var_infers[1]
+inferred_funcs  = parse_function_infers(text)
+
+try_to_complete_missing_types(inferred_locals, inferred_globs, inferred_funcs, declared_locals, declared_globs, declared_funcs)
 
 # text = "class A extends int
 # class B extends A

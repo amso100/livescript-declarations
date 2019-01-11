@@ -1,143 +1,28 @@
 digraph RGL__DirectedAdjacencyGraph {
-    int [
-        fontsize = 8,
-        label = int
-    ]
-
-    "T-39" [
-        fontsize = 8,
-        label = "T-39"
-    ]
-
     "T-1" [
         fontsize = 8,
         label = "T-1"
     ]
 
-    "T-34" [
+    "T-3" [
         fontsize = 8,
-        label = "T-34"
+        label = "T-3"
     ]
 
-    "T-22" [
+    "T-2" [
         fontsize = 8,
-        label = "T-22"
+        label = "T-2"
     ]
 
-    "T-32" [
-        fontsize = 8,
-        label = "T-32"
-    ]
-
-    "T-31" [
-        fontsize = 8,
-        label = "T-31"
-    ]
-
-    B [
-        fontsize = 8,
-        label = B
-    ]
-
-    "T-33" [
-        fontsize = 8,
-        label = "T-33"
-    ]
-
-    M [
-        fontsize = 8,
-        label = M
-    ]
-
-    "T-19" [
-        fontsize = 8,
-        label = "T-19"
-    ]
-
-    "T-12" [
-        fontsize = 8,
-        label = "T-12"
-    ]
-
-    "T-11" [
-        fontsize = 8,
-        label = "T-11"
-    ]
-
-    "T-18" [
-        fontsize = 8,
-        label = "T-18"
-    ]
-
-    "T-14" [
-        fontsize = 8,
-        label = "T-14"
-    ]
-
-    C [
-        fontsize = 8,
-        label = C
-    ]
-
-    "T-6" [
-        fontsize = 8,
-        label = "T-6"
-    ]
-
-    A [
-        fontsize = 8,
-        label = A
-    ]
-
-    int -> "T-39" [
+    "T-1" -> "T-3" [
         fontsize = 8
     ]
 
-    "T-1" -> "T-1" [
+    "T-3" -> "T-2" [
         fontsize = 8
     ]
 
-    "T-1" -> "T-34" [
-        fontsize = 8
-    ]
-
-    "T-1" -> "T-31" [
-        fontsize = 8
-    ]
-
-    "T-1" -> "T-14" [
-        fontsize = 8
-    ]
-
-    "T-22" -> "T-32" [
-        fontsize = 8
-    ]
-
-    B -> "T-33" [
-        fontsize = 8
-    ]
-
-    B -> "T-6" [
-        fontsize = 8
-    ]
-
-    M -> "T-22" [
-        fontsize = 8
-    ]
-
-    "T-19" -> "T-12" [
-        fontsize = 8
-    ]
-
-    "T-11" -> "T-18" [
-        fontsize = 8
-    ]
-
-    C -> "T-11" [
-        fontsize = 8
-    ]
-
-    A -> "T-1" [
+    "T-2" -> "T-1" [
         fontsize = 8
     ]
 }
