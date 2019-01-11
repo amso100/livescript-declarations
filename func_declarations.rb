@@ -3,7 +3,7 @@
 # Entry example:
 # 	"f" -> ["A", "B", "T'-1", "A"]
 
-require "remove_decls.rb"
+require("./remove_decls.rb")
 
 class TypeDeclaredVar
 	attr_accessor :name, :declared_type, :funcScope, :lineno, :scope
@@ -453,6 +453,105 @@ def getProgramDeclarationsAndReferences(program_text)
 	return [res_funcs, res_globs, res_vars, res_references]
 end
 
+# ----- Structures for parsing inferred types -----
+
+# Class for a variable with inferred type.
+class TypeInferredVar
+	attr_accessor :name, :inferred_type, :scope
+	def initialize(name, inferred_type, scope)
+		@name  = name
+		@inferred_type  = inferred_type
+		@scope = scope
+	end
+end
+
+class TypeInferredFunction
+	attr_accessor :name, :args, :return_type
+	def initialize(name, args, ret_type)
+		@name = name
+		@args = args
+		@return_type = ret_type
+	end
+end
+
+def isArbitraryType(typeName)
+	if typeName =~ /T-[0-9]+/
+		return true
+	elsif typeName =~ /T'-[0-9]+/
+		return true
+	else
+		return false
+	end
+end
+
+def parse_global_infers(program)
+
+end
+
+def parse_function_infers(program)
+	aux = remove_decls(program)
+	puts aux
+	f_in = File.new("for_params.ls", "w")
+	f_in.write(aux)
+	f_in.close()
+	f_inferred = `ruby type_infers.rb for_params.ls`
+	
+	globals = []
+	global_scope = f_inferred.split("-----\n")[0]
+	puts global_scope
+
+end
+
+def parse_local_infers(program)
+	res = []
+	tmp = []
+	i = 0
+	
+	aux = remove_decls(program)
+	f_in = File.new("for_params.ls", "w")
+	f_in.write(aux)
+	f_in.close()
+
+	f_inferred = `ruby type_infers.rb for_params.ls`
+	scopes = f_inferred.split("-----\n")
+	scopes.each do |scope|
+		scope.split("\n").each do |var|
+			if var.include? "-"	# Don't want class/funcs declarations
+				next
+			end
+			name = var.split(" : ")[0].strip
+			type = var.split(" : ")[1].strip
+			tmp << TypeInferredVar.new(name, type, i)
+		end
+		if scope.strip.length < 3
+			next
+		end
+
+		if tmp.length == 0
+			next
+		end
+
+		res = res + tmp
+		tmp = []
+		i += 1
+	end
+
+	if tmp.length > 0
+		res = res + tmp
+	end
+
+	while res[0].scope == 0 do
+		globals << res[0]
+		res = res.drop(1)
+	end
+
+	res = [res, globals]
+
+	File.delete("for_params.ls")
+
+	return res
+end
+
 # text = "
 # m := M
 # d := D
@@ -525,6 +624,8 @@ y = g(x)
 
 x :- X"
 
+parse_function_infers(text)
+
 # text = "class A extends int
 # class B extends A
 # class C extends A
@@ -572,54 +673,54 @@ x :- X"
 # "
 
 total_res = getProgramDeclarationsAndReferences(text)
-res_funcs = total_res[0]
-res_globs = total_res[1]
-res_vars  = total_res[2]
-res_references = total_res[3]
+# res_funcs = total_res[0]
+# res_globs = total_res[1]
+# res_vars  = total_res[2]
+# res_references = total_res[3]
 
-puts "Functions:"
-res_funcs.each_pair do |key, value|
-	puts "Function name: #{value.name}"
-	puts "Function Scope: #{value.scope}"
-	puts "Arg types: #{value.args}"
-	if value.return_type != nil
-		puts "Return Type: #{value.return_type}"
-	else
-		puts "Return Type: Could not be determined."
-	end
-	puts ""
-end
+# puts "Functions:"
+# res_funcs.each_pair do |key, value|
+# 	puts "Function name: #{value.name}"
+# 	puts "Function Scope: #{value.scope}"
+# 	puts "Arg types: #{value.args}"
+# 	if value.return_type != nil
+# 		puts "Return Type: #{value.return_type}"
+# 	else
+# 		puts "Return Type: Could not be determined."
+# 	end
+# 	puts ""
+# end
 
-puts "Globals:"
-res_globs.each_pair do |key, value|
-	puts "Global name: #{value.name}"
-	puts "Global Type: #{value.declared_type}"
-	puts "Global line: #{value.lineno}"
-	puts ""
-end
+# puts "Globals:"
+# res_globs.each_pair do |key, value|
+# 	puts "Global name: #{value.name}"
+# 	puts "Global Type: #{value.declared_type}"
+# 	puts "Global line: #{value.lineno}"
+# 	puts ""
+# end
 
-puts "Local Variables:"
-res_vars.each_pair do |key, data|
-	puts "Variables declared in #{key}:"
-	data.each_pair do |k, value|
-		puts "\tVar name: #{value.name}"
-		puts "\tVar Scope: #{value.scope}"
-		puts "\tVar Type: #{value.declared_type}"
-		puts "\tVar line: #{value.lineno}"
-		puts "\t----------"
-	end
-	puts "------------------"
-end
+# puts "Local Variables:"
+# res_vars.each_pair do |key, data|
+# 	puts "Variables declared in #{key}:"
+# 	data.each_pair do |k, value|
+# 		puts "\tVar name: #{value.name}"
+# 		puts "\tVar Scope: #{value.scope}"
+# 		puts "\tVar Type: #{value.declared_type}"
+# 		puts "\tVar line: #{value.lineno}"
+# 		puts "\t----------"
+# 	end
+# 	puts "------------------"
+# end
 
-puts ""
+# puts ""
 
-puts "Variable References:"
-res_references.each do |data|
-	puts "\tVariable #{data.name} used in line #{data.line_found}:"
-	puts "\tVariable kind is #{data.kind}"
-	if data.declared_type != nil
-		puts "\tVariable declared as #{data.declared_type}"
-	end
-	puts "\tVariable declared in line #{data.line_declared}"
-	puts "\t----------"
-end
+# puts "Variable References:"
+# res_references.each do |data|
+# 	puts "\tVariable #{data.name} used in line #{data.line_found}:"
+# 	puts "\tVariable kind is #{data.kind}"
+# 	if data.declared_type != nil
+# 		puts "\tVariable declared as #{data.declared_type}"
+# 	end
+# 	puts "\tVariable declared in line #{data.line_declared}"
+# 	puts "\t----------"
+# end

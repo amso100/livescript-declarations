@@ -1,12 +1,77 @@
 digraph RGL__DirectedAdjacencyGraph {
+    "A (T-29)" [
+        fontsize = 8,
+        label = "A (T-29)"
+    ]
+
+    "A (T-44)" [
+        fontsize = 8,
+        label = "A (T-44)"
+    ]
+
+    "C (T-43)" [
+        fontsize = 8,
+        label = "C (T-43)"
+    ]
+
+    "C (T-25)" [
+        fontsize = 8,
+        label = "C (T-25)"
+    ]
+
     "A (T-5)" [
         fontsize = 8,
         label = "A (T-5)"
     ]
 
-    "A (T-6)" [
+    "A (T-8)" [
         fontsize = 8,
-        label = "A (T-6)"
+        label = "A (T-8)"
+    ]
+
+    "B (T-33)" [
+        fontsize = 8,
+        label = "B (T-33)"
+    ]
+
+    "B (T-24)" [
+        fontsize = 8,
+        label = "B (T-24)"
+    ]
+
+    "B (T-16)" [
+        fontsize = 8,
+        label = "B (T-16)"
+    ]
+
+    "B (T-17)" [
+        fontsize = 8,
+        label = "B (T-17)"
+    ]
+
+    C [
+        fontsize = 8,
+        label = C
+    ]
+
+    "B (T-36)" [
+        fontsize = 8,
+        label = "B (T-36)"
+    ]
+
+    "B (T-6)" [
+        fontsize = 8,
+        label = "B (T-6)"
+    ]
+
+    "B (T-26)" [
+        fontsize = 8,
+        label = "B (T-26)"
+    ]
+
+    "A (T-32)" [
+        fontsize = 8,
+        label = "A (T-32)"
     ]
 
     A [
@@ -14,11 +79,93 @@ digraph RGL__DirectedAdjacencyGraph {
         label = A
     ]
 
-    "A (T-5)" -> "A (T-6)" [
+    "T-9" [
+        fontsize = 8,
+        label = "T-9"
+    ]
+
+    B [
+        fontsize = 8,
+        label = B
+    ]
+
+    "A (T-29)" -> "A (T-44)" [
         fontsize = 8
     ]
 
-    A -> "A (T-5)" [
+    "C (T-43)" -> "C (T-25)" [
+        fontsize = 8
+    ]
+
+    "C (T-25)" -> "A (T-5)" [
+        fontsize = 8
+    ]
+
+    "A (T-5)" -> "A (T-8)" [
+        fontsize = 8
+    ]
+
+    "B (T-33)" -> "B (T-24)" [
+        fontsize = 8
+    ]
+
+    "B (T-33)" -> "B (T-16)" [
+        fontsize = 8
+    ]
+
+    "B (T-16)" -> "A (T-5)" [
+        fontsize = 8
+    ]
+
+    "B (T-16)" -> "B (T-17)" [
+        fontsize = 8
+    ]
+
+    C -> "C (T-43)" [
+        fontsize = 8
+    ]
+
+    C -> "A (T-29)" [
+        fontsize = 8
+    ]
+
+    "B (T-36)" -> "B (T-17)" [
+        fontsize = 8
+    ]
+
+    "B (T-6)" -> "B (T-36)" [
+        fontsize = 8
+    ]
+
+    "B (T-6)" -> "B (T-33)" [
+        fontsize = 8
+    ]
+
+    "B (T-6)" -> "A (T-29)" [
+        fontsize = 8
+    ]
+
+    "B (T-6)" -> "B (T-26)" [
+        fontsize = 8
+    ]
+
+    "B (T-26)" -> "A (T-5)" [
+        fontsize = 8
+    ]
+
+    "A (T-32)" -> "A (T-5)" [
+        fontsize = 8
+    ]
+
+    A -> "A (T-32)" [
+        fontsize = 8
+    ]
+
+    "T-9" -> "B (T-6)" [
+        fontsize = 8
+    ]
+
+    B -> "B (T-6)" [
         fontsize = 8
     ]
 }

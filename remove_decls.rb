@@ -3,19 +3,22 @@
 
 def remove_decls(text)
 	text.gsub(/\r\n?/, "\n")
-	res = text.gsub(/:= *[A-Za-z]{1}[A-Za-z0-9_]*/, " ")
+	if lineIsFunctionDeclaration
+		res = text.gsub(/:- *[A-Za-z]{1}[A-Za-z0-9_]*/, " ")
+	else
+		res = text.gsub(/[A-Za-z]{1}[A-Za-z0-9_]* *:- *[A-Za-z]{1}[A-Za-z0-9_]*/, " ")
 	return res
 end
 
-text = "
-f(a := A, b:= B, c, d, f:=     F) ->
-	a
+# text = "
+# f(a := A, b:= B, c, d, f:=     F) ->
+# 	a
 
-g(a, b, c) ->
-	a
+# g(a, b, c) ->
+# 	a
 
-h(x := int, y := double, z := A) ->
-	x * y
-"
+# h(x := int, y := double, z := A) ->
+# 	x * y
+# "
 
 # puts remove_decls(text)
