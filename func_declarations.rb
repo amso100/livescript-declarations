@@ -467,9 +467,9 @@ end
 
 class TypeInferredFunction
 	attr_accessor :name, :args, :return_type
-	def initialize(name, args, ret_type)
+	def initialize(name, ret_type)
 		@name = name
-		@args = args
+		@args = Array.new
 		@return_type = ret_type
 	end
 end
@@ -495,10 +495,26 @@ def parse_function_infers(program)
 	f_in.write(aux)
 	f_in.close()
 	f_inferred = `ruby type_infers.rb for_params.ls`
+	functions_dict = Hash.new
 	
 	globals = []
 	global_scope = f_inferred.split("-----\n")[0]
-	puts global_scope
+	global_scope.each_line do |line|
+		if line =~ /->/ # Function line
+			function_data = line.split(" : ")
+			func_name = function_data[0]
+			func_args_return = function_data[1].split("->")
+			return_type = func_args_return.pop(1)
+			
+			functions_dict[func_name] = TypeInferredFunction.new(func_name, return_type)
+
+			func_args_return.each do |argType|
+				functions_dict[func_name].args << argType
+			end
+		end
+	end
+
+
 
 end
 
