@@ -27,6 +27,14 @@ class FunctionDeclaration
 	end
 end
 
+class FunctionParameter
+	attr_accessor :name, :type
+	def initialize(name, type)
+		@name = name
+		@type = type
+	end
+end
+
 class VariableReference
 	# Name: Variable's name
 	# line_declared: Line in which var was declared
@@ -87,7 +95,7 @@ end
 
 def get_line_variables(line)
 	vars = Array.new
-	line.scan(/[A-Za-z]{1}[A-Za-z0-9_]*/) do |m|
+	line.scan(/[A-Za-z]{1}[A-Za-z0-9_]*[^(]/) do |m|
 		if m == "new" # or m == [some other keyword]
 			next
 		end
@@ -298,10 +306,10 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars)
 					if a.length > 1
 						# puts "var is #{a[0][0]}, Type is #{a[1][0]}"
 						local_vars[func_name][a[0][0]] = TypeDeclaredVar.new(a[0][0], a[1][0], func_name, ind, scopeno)
-						functions_dict[func_name].args << a[1][0]
+						functions_dict[func_name].args << FunctionParameter.new(a[0][0], a[1][0])
 					else
 						# puts "var is #{a[0][0]}"
-						functions_dict[func_name].args << "T'-#{aribtrary_count}"
+						functions_dict[func_name].args << FunctionParameter.new(a[0][0], "T'-#{aribtrary_count}")
 						aribtrary_count += 1
 					end
 				end
@@ -336,7 +344,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars)
 					local_vars[func_name] = Hash.new
 					changed = true
 					functions_dict[func_name] = FunctionDeclaration.new(func_name, ind, scopeno)
-					functions_dict[func_name].args << "unit"
+					functions_dict[func_name].args << FunctionParameter.new("", "unit")
 				end
 			end
 			# puts line
@@ -376,19 +384,36 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars)
 					local_vars[func_name][name] = TypeDeclaredVar.new(name, type, func_name, ind, scopeno)
 				end
 
+				# Check if one of the declared vars is also a parameter, and if so, update the function.
+				declarations.each_pair do |name, type|
+					functions_dict[func_name].args.each do |arg|
+						if arg.name == name and isArbitraryType(arg.type)
+							arg.type = type
+						end
+					end
+				end
+
 				# Identify all vars in line, and if found in dictionary, print a "reference".
 				current_scope = local_vars[func_name]
 				vars = get_line_variables(line)
 				vars.each do |var|
 					if current_scope.keys.include?(var)
+						if global_vars[var] != nil and current_scope[var] != nil
+							current_scope[var].declared_type = global_vars[var].declared_type
+						end
 						var_references << VariableReference.new(var, current_scope[var].lineno, ind, current_scope[var].declared_type, "local")
 						# puts "Line #{ind}: Var #{var} is local  declared at line #{current_scope[var].lineno}"
 					elsif global_vars.keys.include?(var)
 						var_references << VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global")
+						if global_vars[var] != nil and current_scope[var] != nil
+							current_scope[var].declared_type = global_vars[var].declared_type
+						end
 						# puts "Line #{ind}: Var #{var} is global declared at line #{global_vars[var].lineno}"
 					elsif functions_dict.keys.include?(var)
 						var_references << VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func")
 						# puts "Line #{ind}: Var #{var} is function defined at line #{functions_dict[var].lineno}"
+					else
+						current_scope[var] = TypeDeclaredVar.new(var, "", func_name, ind, scopeno)
 					end
 				end
 			else
@@ -602,7 +627,7 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 		
 		match = find_inferred_var_in_declared(inferredVar, declaredLocals)
 		if match != nil
-			puts "#{inferredVar.inferred_type} =:= #{match.declared_type}"
+			puts "#{inferredVar.name}: #{inferredVar.inferred_type} =:= #{match.declared_type}"
 		else
 			puts "Type of var #{inferredVar.name} was not declared."
 		end
@@ -618,7 +643,7 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 		
 		match = find_inferred_var_in_globals(inferredVar, declaredGlobals)
 		if match != nil
-			puts "#{inferredVar.inferred_type} =:= #{match.declared_type}"
+			puts "#{inferredVar.name}: #{inferredVar.inferred_type} =:= #{match.declared_type}"
 		else
 			puts "Type of var #{inferredVar.name} was not declared."
 		end
@@ -631,10 +656,10 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 		puts "In function #{inferredFunc.name}"
 		if match != nil
 			if isArbitraryType(inferredFunc.return_type)
-				puts "#{inferredFunc.return_type} =:= #{match.return_type}"
+				puts "#{funcName}  [Return]: #{inferredFunc.return_type} =:= #{match.return_type}"
 			end
 			inferredFunc.args.each_with_index do |val, index|
-				puts "Arg \##{index+1}: #{val} =:= #{match.args[index]}"
+				puts "Arg \##{index+1}: #{val} =:= #{match.args[index].type}"
 			end
 		end
 		puts "-----------------------"
@@ -720,13 +745,27 @@ end
 
 # "
 
+text = "noTypes = (b1 :- B, l :- L) ->
+	l
+k = ->
+	b2
+class A extends int
+class B extends A
+f = (a, b) ->
+	a :- A
+	b :- B
+	a
+
+b2 = new B
+b2 :- B"
+
 # text = "class A extends int
 # a = b
 # b = c
 # c = a
 # a :- A
 # b :- B
-# c :- C"
+# c :- A"
 
 res_declared = getProgramDeclarationsAndReferences(text)
 declared_funcs  = res_declared[0]

@@ -1,148 +1,15 @@
 digraph RGL__DirectedAdjacencyGraph {
-    int [
-        fontsize = 8,
-        label = int
-    ]
-
-    "int (T-41)" [
-        fontsize = 8,
-        label = "int (T-41)"
-    ]
-
-    "A (T-1)" [
-        fontsize = 8,
-        label = "A (T-1)"
-    ]
-
-    "A (T-12)" [
-        fontsize = 8,
-        label = "A (T-12)"
-    ]
-
-    "A (T-36)" [
-        fontsize = 8,
-        label = "A (T-36)"
-    ]
-
-    "A (T-33)" [
-        fontsize = 8,
-        label = "A (T-33)"
-    ]
-
-    "A (T-16)" [
-        fontsize = 8,
-        label = "A (T-16)"
-    ]
-
-    "M (T-24)" [
-        fontsize = 8,
-        label = "M (T-24)"
-    ]
-
-    "M (T-34)" [
-        fontsize = 8,
-        label = "M (T-34)"
-    ]
-
     B [
         fontsize = 8,
         label = B
     ]
 
-    "B (T-35)" [
+    "B (T-18)" [
         fontsize = 8,
-        label = "B (T-35)"
+        label = "B (T-18)"
     ]
 
-    "B (T-7)" [
-        fontsize = 8,
-        label = "B (T-7)"
-    ]
-
-    M [
-        fontsize = 8,
-        label = M
-    ]
-
-    "T-21" [
-        fontsize = 8,
-        label = "T-21"
-    ]
-
-    "T-14" [
-        fontsize = 8,
-        label = "T-14"
-    ]
-
-    "C (T-13)" [
-        fontsize = 8,
-        label = "C (T-13)"
-    ]
-
-    "C (T-20)" [
-        fontsize = 8,
-        label = "C (T-20)"
-    ]
-
-    C [
-        fontsize = 8,
-        label = C
-    ]
-
-    A [
-        fontsize = 8,
-        label = A
-    ]
-
-    int -> "int (T-41)" [
-        fontsize = 8
-    ]
-
-    "A (T-1)" -> "A (T-12)" [
-        fontsize = 8
-    ]
-
-    "A (T-1)" -> "A (T-36)" [
-        fontsize = 8
-    ]
-
-    "A (T-1)" -> "A (T-33)" [
-        fontsize = 8
-    ]
-
-    "A (T-1)" -> "A (T-16)" [
-        fontsize = 8
-    ]
-
-    "M (T-24)" -> "M (T-34)" [
-        fontsize = 8
-    ]
-
-    B -> "B (T-35)" [
-        fontsize = 8
-    ]
-
-    B -> "B (T-7)" [
-        fontsize = 8
-    ]
-
-    M -> "M (T-24)" [
-        fontsize = 8
-    ]
-
-    "T-21" -> "T-14" [
-        fontsize = 8
-    ]
-
-    "C (T-13)" -> "C (T-20)" [
-        fontsize = 8
-    ]
-
-    C -> "C (T-13)" [
-        fontsize = 8
-    ]
-
-    A -> "A (T-1)" [
+    B -> "B (T-18)" [
         fontsize = 8
     ]
 }
