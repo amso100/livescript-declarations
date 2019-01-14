@@ -83,11 +83,16 @@ def count_tabs_at_start(line)
 	return c
 end
 
-def get_line_declarations(line)
+def get_line_declarations(line, allTypes)
 	declarations = Hash.new
 	line.scan(/[A-Za-z_]{1}[A-Za-z0-9_]* *:- *[A-Za-z_]{1}[A-Za-z0-9_]*/) do
 		|match| a = match.scan(/[a-zA-z_]{1}[A-Za-z0-9_]*/)[0]
 		b = match.scan(/[a-zA-z_]{1}[A-Za-z0-9_]*/)[1]
+		if allTypes.include?(a) or b == nil
+			next
+		end
+
+		# If actually a declaration
 		declarations[a] = b
 	end
 	return declarations
@@ -95,13 +100,14 @@ end
 
 def get_line_variables(line, possibleTypes)
 	vars = Array.new
-	line.scan(/[A-Za-z]{1}[A-Za-z0-9_]*/) do |m|
-		# m = m[0..-1]
-		if m == "new" # or m == [some other keyword]
+	line.scan(/[A-Za-z]{1}[A-Za-z0-9_]*[^"]/) do |m|
+		m = m[0...-1]	
+		if m == "new" or m == "class" or m == "extends" # or m == [some other keyword]
 			next
 		elsif possibleTypes.include? m
 			next
 		end
+
 		vars << m 
 	end
 	return vars
@@ -242,6 +248,7 @@ def add_variable_reference(allReferences, newRef)
 		end
 	end
 	if not found
+		# puts "adding reference to var #{newRef.name.split("")}"
 		allReferences << newRef
 	end
 end
@@ -258,6 +265,14 @@ def setup_variable_types(allTypes, local_vars, global_vars)
 	global_vars.each_pair do |name, varData|
 		if not allTypes.include? varData.declared_type
 			allTypes << varData.declared_type
+		end
+	end
+end
+
+def update_relevant_global_references(allReferences, varName, lineDeclared)
+	allReferences.each do |var|
+		if var.name == varName
+			var.line_declared = lineDeclared
 		end
 	end
 end
@@ -286,7 +301,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars)
 	allVariableTypes = Array.new
 
 	setup_variable_types(allVariableTypes, local_vars, global_vars)
-	puts "Types: #{allVariableTypes}"
+	# puts "Types: #{allVariableTypes}"
 
 	if global_variables_exist(text)
 		# puts "Globals"
@@ -336,7 +351,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars)
 			if functions_dict[func_name].initialized
 				# Func exists
 			else
-				line[func_name.length..-1].scan(/([A-Za-z]{1}[A-Za-z0-9_]* *:- *[A-Za-z]{1}[A-Za-z0-9_]*,? *|[A-Za-z]{1}[A-Za-z0-9_]*,? *)/) do |m|
+				line[func_name.length...-1].scan(/([A-Za-z]{1}[A-Za-z0-9_]* *:- *[A-Za-z]{1}[A-Za-z0-9_]*,? *|[A-Za-z]{1}[A-Za-z0-9_]*,? *)/) do |m|
 					a = m[0].scan(/([A-Za-z]{1}[A-Za-z0-9_]*)/)
 					
 					if a.length > 1
@@ -399,11 +414,27 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars)
 			# puts line
 			# puts "scope = #{scopeno}"
 
-			declarations = get_line_declarations(line)
+			declarations = get_line_declarations(line, allVariableTypes)
 			declarations.each_pair do |name, type|
-				if not global_vars.keys.include?(name)
+				if not global_vars.keys.include?(name) and not allVariableTypes.include?(name)
 					global_vars[name] = TypeDeclaredVar.new(name, type, "", ind, scopeno)
 					changed = true
+				end
+				update_relevant_global_references(var_references, name, ind)
+			end
+
+			if declarations.size == 0 # If no declarations found, search for used variables.
+				vars = get_line_variables(line, allVariableTypes)
+				vars.each do |var|
+					if global_vars.keys.include?(var)
+						ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global")
+						add_variable_reference(var_references, ref)
+						# puts "Line #{ind}: Var #{var} is global declared at #{global_vars[var].lineno}"
+					elsif functions_dict.keys.include?(var)
+						ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func")
+						add_variable_reference(var_references, ref)
+						# puts "Line #{ind}: Var #{var} is function defined at line #{functions_dict[var].lineno}"
+					end
 				end
 			end
 
@@ -415,7 +446,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars)
 				# puts "scope = #{scopeno}"
 				# puts line
 				# puts "Regular function line"
-				declarations = get_line_declarations(line)
+				declarations = get_line_declarations(line, allVariableTypes)
 				declarations.each_pair do |name, type|
 					local_vars[func_name][name] = TypeDeclaredVar.new(name, type, func_name, ind, scopeno)
 				end
@@ -433,16 +464,24 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars)
 				current_scope = local_vars[func_name]
 				vars = get_line_variables(line, allVariableTypes)
 				vars.each do |var|
+					if current_scope.keys.include?(var) and global_vars.keys.include?(var)
+						current_scope.delete(var)
+					end
+
 					if current_scope.keys.include?(var)
 						if global_vars[var] != nil and current_scope[var] != nil
 							current_scope[var].declared_type = global_vars[var].declared_type
 						end
-						ref = VariableReference.new(var, current_scope[var].lineno, ind, current_scope[var].declared_type, "local")
-						add_variable_reference(var_references, ref)
+						if current_scope[var].declared_type != ""
+							ref = VariableReference.new(var, current_scope[var].lineno, ind, current_scope[var].declared_type, "local")
+							add_variable_reference(var_references, ref)
+						end
 						# puts "Line #{ind}: Var #{var} is local  declared at line #{current_scope[var].lineno}"
 					elsif global_vars.keys.include?(var)
-						ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global")
-						add_variable_reference(var_references, ref)
+						if global_vars[var].declared_type != ""
+							ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global")
+							add_variable_reference(var_references, ref)
+						end
 						if global_vars[var] != nil and current_scope[var] != nil
 							current_scope[var].declared_type = global_vars[var].declared_type
 						end
@@ -456,9 +495,13 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars)
 					end
 				end
 			else
-				declarations = get_line_declarations(line)
+				declarations = get_line_declarations(line, allVariableTypes)
 				declarations.each_pair do |name, type|
-					global_vars[name] = TypeDeclaredVar.new(name, type, "", ind, scopeno)
+					if not global_vars.include?(name) and not allVariableTypes.include?(name)
+						global_vars[name] = TypeDeclaredVar.new(name, type, "", ind, scopeno)
+						changed = true
+					end
+					update_relevant_global_references(var_references, name, ind)
 				end
 
 				if declarations.size == 0 # If no declarations found, search for used variables.
@@ -488,6 +531,15 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars)
 	if prev_line != nil and count_tabs_at_start(prev_line) > 0
 		ret_type = parse_for_type(prev_line, local_vars, global_vars, func_name, functions_dict)
 		functions_dict[func_name].return_type = ret_type
+	end
+
+	# Remove any types that were accidentally added to local_vars:
+	local_vars.each_pair do |funcName, funcVars|
+		funcVars.each_pair do |varName, varData|
+			if allVariableTypes.include? varName
+				local_vars[funcName].delete(varName)
+			end
+		end
 	end
 
 	return [functions_dict, global_vars, local_vars, var_references, changed]
@@ -923,30 +975,30 @@ res_globs = total_res[1]
 res_vars  = total_res[2]
 res_references = total_res[3]
 
-# puts "Functions:"
-# res_funcs.each_pair do |key, value|
-# 	puts "Function name: #{value.name}"
-# 	puts "Function Scope: #{value.scope}"
-# 	puts "Arg types: #{value.args.map {|arg| arg.type}}"
-# 	if value.return_type != nil
-# 		puts "Return Type: #{value.return_type}"
-# 	else
-# 		puts "Return Type: Could not be determined."
-# 	end
-# 	puts ""
-# end
+puts "Functions:"
+res_funcs.each_pair do |key, value|
+	puts "Function name: #{value.name}"
+	puts "Function Scope: #{value.scope}"
+	puts "Arg types: #{value.args.map {|arg| arg.type}}"
+	if value.return_type != nil
+		puts "Return Type: #{value.return_type}"
+	else
+		puts "Return Type: Could not be determined."
+	end
+	puts ""
+end
 
-# puts "Globals:"
-# res_globs.each_pair do |key, value|
-# 	puts "Global name: #{value.name}"
-# 	puts "Global Type: #{value.declared_type}"
-# 	puts "Global line: #{value.lineno}"
-# 	puts ""
-# end
+puts "Globals:"
+res_globs.each_pair do |key, value|
+	puts "Global name: #{value.name}"
+	puts "Global Type: #{value.declared_type}"
+	puts "Global line: #{value.lineno}"
+	puts ""
+end
 
 puts "Local Variables:"
 res_vars.each_pair do |key, data|
-	puts "Variables declared in #{key}:"
+	puts "Local variables in #{key}:"
 	data.each_pair do |k, value|
 		puts "\tVar name: #{value.name}"
 		puts "\tVar Scope: #{value.scope}"
