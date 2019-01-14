@@ -1,15 +1,116 @@
 digraph RGL__DirectedAdjacencyGraph {
-    B [
+    "T-38" [
         fontsize = 8,
-        label = B
+        label = "T-38"
     ]
 
-    "T-18" [
+    "T-39" [
         fontsize = 8,
-        label = "T-18"
+        label = "T-39"
     ]
 
-    B -> "T-18" [
+    "T-1" [
+        fontsize = 8,
+        label = "T-1"
+    ]
+
+    "T-37" [
+        fontsize = 8,
+        label = "T-37"
+    ]
+
+    "T-36" [
+        fontsize = 8,
+        label = "T-36"
+    ]
+
+    Z [
+        fontsize = 8,
+        label = Z
+    ]
+
+    "T-27" [
+        fontsize = 8,
+        label = "T-27"
+    ]
+
+    Y [
+        fontsize = 8,
+        label = Y
+    ]
+
+    "T-26" [
+        fontsize = 8,
+        label = "T-26"
+    ]
+
+    "T-8" [
+        fontsize = 8,
+        label = "T-8"
+    ]
+
+    "T-14" [
+        fontsize = 8,
+        label = "T-14"
+    ]
+
+    "T-7" [
+        fontsize = 8,
+        label = "T-7"
+    ]
+
+    "T-10" [
+        fontsize = 8,
+        label = "T-10"
+    ]
+
+    X [
+        fontsize = 8,
+        label = X
+    ]
+
+    "T-2" [
+        fontsize = 8,
+        label = "T-2"
+    ]
+
+    "T-38" -> "T-39" [
+        fontsize = 8
+    ]
+
+    "T-1" -> "T-38" [
+        fontsize = 8
+    ]
+
+    "T-1" -> "T-37" [
+        fontsize = 8
+    ]
+
+    "T-1" -> "T-36" [
+        fontsize = 8
+    ]
+
+    Z -> "T-27" [
+        fontsize = 8
+    ]
+
+    Y -> "T-26" [
+        fontsize = 8
+    ]
+
+    "T-8" -> "T-14" [
+        fontsize = 8
+    ]
+
+    "T-7" -> "T-10" [
+        fontsize = 8
+    ]
+
+    X -> "T-2" [
+        fontsize = 8
+    ]
+
+    X -> "T-1" [
         fontsize = 8
     ]
 }

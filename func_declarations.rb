@@ -93,10 +93,13 @@ def get_line_declarations(line)
 	return declarations
 end
 
-def get_line_variables(line)
+def get_line_variables(line, possibleTypes)
 	vars = Array.new
-	line.scan(/[A-Za-z]{1}[A-Za-z0-9_]*[^(]/) do |m|
+	line.scan(/[A-Za-z]{1}[A-Za-z0-9_]*/) do |m|
+		# m = m[0..-1]
 		if m == "new" # or m == [some other keyword]
+			next
+		elsif possibleTypes.include? m
 			next
 		end
 		vars << m 
@@ -230,6 +233,35 @@ def parse_for_type(line, local_vars, global_vars, func_name, funcs_dict)
 
 end
 
+def add_variable_reference(allReferences, newRef)
+	found = false
+	allReferences.each do |ref|
+		if ref.name == newRef.name and ref.line_found == newRef.line_found
+			found = true
+			ref.declared_type = newRef.declared_type
+		end
+	end
+	if not found
+		allReferences << newRef
+	end
+end
+
+def setup_variable_types(allTypes, local_vars, global_vars)
+	local_vars.each_pair do |scope, scopeVars|
+		scopeVars.each_pair do |name, varData|
+			if not allTypes.include? varData.declared_type
+				allTypes << varData.declared_type
+			end
+		end
+	end
+
+	global_vars.each_pair do |name, varData|
+		if not allTypes.include? varData.declared_type
+			allTypes << varData.declared_type
+		end
+	end
+end
+
 # Returns 3 dictionaries, in the following order:
 # 	1. functions_dict:
 # 	A dictionary that contains for each function its argument types
@@ -251,6 +283,10 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars)
 	first_function = true
 	func_name = ""
 	var_references = Array.new
+	allVariableTypes = Array.new
+
+	setup_variable_types(allVariableTypes, local_vars, global_vars)
+	puts "Types: #{allVariableTypes}"
 
 	if global_variables_exist(text)
 		# puts "Globals"
@@ -395,22 +431,25 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars)
 
 				# Identify all vars in line, and if found in dictionary, print a "reference".
 				current_scope = local_vars[func_name]
-				vars = get_line_variables(line)
+				vars = get_line_variables(line, allVariableTypes)
 				vars.each do |var|
 					if current_scope.keys.include?(var)
 						if global_vars[var] != nil and current_scope[var] != nil
 							current_scope[var].declared_type = global_vars[var].declared_type
 						end
-						var_references << VariableReference.new(var, current_scope[var].lineno, ind, current_scope[var].declared_type, "local")
+						ref = VariableReference.new(var, current_scope[var].lineno, ind, current_scope[var].declared_type, "local")
+						add_variable_reference(var_references, ref)
 						# puts "Line #{ind}: Var #{var} is local  declared at line #{current_scope[var].lineno}"
 					elsif global_vars.keys.include?(var)
-						var_references << VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global")
+						ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global")
+						add_variable_reference(var_references, ref)
 						if global_vars[var] != nil and current_scope[var] != nil
 							current_scope[var].declared_type = global_vars[var].declared_type
 						end
 						# puts "Line #{ind}: Var #{var} is global declared at line #{global_vars[var].lineno}"
 					elsif functions_dict.keys.include?(var)
-						var_references << VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func")
+						ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func")
+						add_variable_reference(var_references, ref)
 						# puts "Line #{ind}: Var #{var} is function defined at line #{functions_dict[var].lineno}"
 					else
 						current_scope[var] = TypeDeclaredVar.new(var, "", func_name, ind, scopeno)
@@ -423,13 +462,15 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars)
 				end
 
 				if declarations.size == 0 # If no declarations found, search for used variables.
-					vars = get_line_variables(line)
+					vars = get_line_variables(line, allVariableTypes)
 					vars.each do |var|
 						if global_vars.keys.include?(var)
-							var_references << VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global")
+							ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global")
+							add_variable_reference(var_references, ref)
 							# puts "Line #{ind}: Var #{var} is global declared at #{global_vars[var].lineno}"
 						elsif functions_dict.keys.include?(var)
-							var_references << VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func")
+							ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func")
+							add_variable_reference(var_references, ref)
 							# puts "Line #{ind}: Var #{var} is function defined at line #{functions_dict[var].lineno}"
 						end
 					end
@@ -656,7 +697,13 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 		puts "In function #{inferredFunc.name}"
 		if match != nil
 			if isArbitraryType(inferredFunc.return_type)
-				puts "#{funcName}  [Return]: #{inferredFunc.return_type} =:= #{match.return_type}"
+				if match.return_type == nil
+					puts "#{funcName}  [Return]: #{inferredFunc.return_type} =:= NIL"
+				else
+					puts "#{funcName}  [Return]: #{inferredFunc.return_type} =:= #{match.return_type}"
+				end
+			else
+				puts "#{funcName}  [Return]: #{inferredFunc.return_type}"
 			end
 			inferredFunc.args.each_with_index do |val, index|
 				puts "Arg \##{index+1}: #{val} =:= #{match.args[index].type}"
@@ -745,19 +792,53 @@ end
 
 # "
 
-text = "noTypes = (b1 :- B, l :- L) ->
-	l
-k = ->
-	b2
-class A extends int
-class B extends A
-f = (a, b) ->
-	a :- A
-	b :- B
-	a
+# text = "noTypes = (b1 :- B, l :- L) ->
+# 	l
+# k = ->
+# 	b2
+# class A extends int
+# class B extends A
+# f = (a, b) ->
+# 	a :- A
+# 	b :- B
+# 	a
 
-b2 = new B
-b2 :- B"
+# b2 = new B
+# b2 :- B"
+
+text = "class X extends int
+class Y extends X
+class Z extends Y
+class W extends X
+x1 = new X
+x2 = new X
+
+f = (w1 :- W, w2 :- W) ->
+	max(w1, w2)
+
+g = ->
+	x1
+
+x1 :- X
+x2 :- X
+
+h = (y :- Y, z :- Z) ->
+	y = new Y
+	z = new Z
+	y
+
+i = ->
+	\"i\"
+
+k = (a, b, c) ->
+	a :- X
+	b :- Y
+	c :- Z
+	a
+	b
+	c
+x0 = k(x1, x1, x1)
+"
 
 # text = "class A extends int
 # a = b
@@ -777,7 +858,7 @@ inferred_locals = res_var_infers[0]
 inferred_globs  = res_var_infers[1]
 inferred_funcs  = parse_function_infers(text)
 
-try_to_complete_missing_types(inferred_locals, inferred_globs, inferred_funcs, declared_locals, declared_globs, declared_funcs)
+# try_to_complete_missing_types(inferred_locals, inferred_globs, inferred_funcs, declared_locals, declared_globs, declared_funcs)
 
 # text = "class A extends int
 # class B extends A
@@ -835,18 +916,18 @@ try_to_complete_missing_types(inferred_locals, inferred_globs, inferred_funcs, d
 # 	\"i\"
 # "
 
-# total_res = getProgramDeclarationsAndReferences(text)
+total_res = res_declared
 
-# res_funcs = total_res[0]
-# res_globs = total_res[1]
-# res_vars  = total_res[2]
-# res_references = total_res[3]
+res_funcs = total_res[0]
+res_globs = total_res[1]
+res_vars  = total_res[2]
+res_references = total_res[3]
 
 # puts "Functions:"
 # res_funcs.each_pair do |key, value|
 # 	puts "Function name: #{value.name}"
 # 	puts "Function Scope: #{value.scope}"
-# 	puts "Arg types: #{value.args}"
+# 	puts "Arg types: #{value.args.map {|arg| arg.type}}"
 # 	if value.return_type != nil
 # 		puts "Return Type: #{value.return_type}"
 # 	else
@@ -863,28 +944,28 @@ try_to_complete_missing_types(inferred_locals, inferred_globs, inferred_funcs, d
 # 	puts ""
 # end
 
-# puts "Local Variables:"
-# res_vars.each_pair do |key, data|
-# 	puts "Variables declared in #{key}:"
-# 	data.each_pair do |k, value|
-# 		puts "\tVar name: #{value.name}"
-# 		puts "\tVar Scope: #{value.scope}"
-# 		puts "\tVar Type: #{value.declared_type}"
-# 		puts "\tVar line: #{value.lineno}"
-# 		puts "\t----------"
-# 	end
-# 	puts "------------------"
-# end
+puts "Local Variables:"
+res_vars.each_pair do |key, data|
+	puts "Variables declared in #{key}:"
+	data.each_pair do |k, value|
+		puts "\tVar name: #{value.name}"
+		puts "\tVar Scope: #{value.scope}"
+		puts "\tVar Type: #{value.declared_type}"
+		puts "\tVar line: #{value.lineno}"
+		puts "\t----------"
+	end
+	puts "------------------"
+end
 
-# puts ""
+puts ""
 
-# puts "Variable References:"
-# res_references.each do |data|
-# 	puts "\tVariable #{data.name} used in line #{data.line_found}:"
-# 	puts "\tVariable kind is #{data.kind}"
-# 	if data.declared_type != nil
-# 		puts "\tVariable declared as #{data.declared_type}"
-# 	end
-# 	puts "\tVariable declared in line #{data.line_declared}"
-# 	puts "\t----------"
-# end
+puts "Variable References:"
+res_references.each do |data|
+	puts "\tVariable #{data.name} used in line #{data.line_found}:"
+	puts "\tVariable kind is #{data.kind}"
+	if data.declared_type != nil
+		puts "\tVariable declared as #{data.declared_type}"
+	end
+	puts "\tVariable declared in line #{data.line_declared}"
+	puts "\t----------"
+end
