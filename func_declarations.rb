@@ -894,41 +894,59 @@ end
 # b2 = new B
 # b2 :- B"
 
-text = "class X extends int
-class Y extends X
-class Z extends Y
-class W extends X
-x1 = new X
-x2 = new X
+text = "class A extends int
+class B extends A
+class C extends B
+class D extends B
+class E extends B
 
-f = (w1 :- W, w2 :- W) ->
-	max(w1, w2)
-
-g = ->
-	x1
-
-x1 :- X
-x2 :- X
-
-h = (y :- Y, z :- Z) ->
-	y = new Y
-	z = new Z
-	y
-
-i = ->
-	\"i\"
-
-k = (a, b, c) ->
-	a :- X
-	b :- Y
-	c :- Z
+f = (a :- A,b :- B) ->
 	a
-	b
-	c
-x0 = k(x1, x1, x1)
 
-n = i()
-"
+g = (a :- A, b :- B) ->
+	b
+
+c = f(m,n)
+d = g(m,n)
+
+m :- A
+n :- B"
+
+# text = "class X extends int
+# class Y extends X
+# class Z extends Y
+# class W extends X
+# x1 = new X
+# x2 = new X
+
+# f = (w1 :- W, w2 :- W) ->
+# 	max(w1, w2)
+
+# g = ->
+# 	x1
+
+# x1 :- X
+# x2 :- X
+
+# h = (y :- Y, z :- Z) ->
+# 	y = new Y
+# 	z = new Z
+# 	y
+
+# i = ->
+# 	\"i\"
+
+# k = (a, b, c) ->
+# 	a :- X
+# 	b :- Y
+# 	c :- Z
+# 	a
+# 	b
+# 	c
+# x0 = k(x1, x1, x1)
+
+# n = i()
+# "
 
 # text = "class A extends int
 # a = b

@@ -1,116 +1,42 @@
 digraph RGL__DirectedAdjacencyGraph {
-    "X (T-38)" [
+    "E (T-2)" [
         fontsize = 8,
-        label = "X (T-38)"
+        label = "E (T-2)"
     ]
 
-    "X (T-39)" [
+    "E (T-16)" [
         fontsize = 8,
-        label = "X (T-39)"
+        label = "E (T-16)"
     ]
 
-    "X (T-1)" [
+    "E (T-1)" [
         fontsize = 8,
-        label = "X (T-1)"
+        label = "E (T-1)"
     ]
 
-    "X (T-37)" [
+    "E (T-11)" [
         fontsize = 8,
-        label = "X (T-37)"
+        label = "E (T-11)"
     ]
 
-    "X (T-36)" [
+    E [
         fontsize = 8,
-        label = "X (T-36)"
+        label = E
     ]
 
-    Z [
-        fontsize = 8,
-        label = Z
-    ]
-
-    "Z (T-27)" [
-        fontsize = 8,
-        label = "Z (T-27)"
-    ]
-
-    Y [
-        fontsize = 8,
-        label = Y
-    ]
-
-    "Y (T-26)" [
-        fontsize = 8,
-        label = "Y (T-26)"
-    ]
-
-    "T-8" [
-        fontsize = 8,
-        label = "T-8"
-    ]
-
-    "T-14" [
-        fontsize = 8,
-        label = "T-14"
-    ]
-
-    "T-7" [
-        fontsize = 8,
-        label = "T-7"
-    ]
-
-    "T-10" [
-        fontsize = 8,
-        label = "T-10"
-    ]
-
-    X [
-        fontsize = 8,
-        label = X
-    ]
-
-    "X (T-2)" [
-        fontsize = 8,
-        label = "X (T-2)"
-    ]
-
-    "X (T-38)" -> "X (T-39)" [
+    "E (T-2)" -> "E (T-16)" [
         fontsize = 8
     ]
 
-    "X (T-1)" -> "X (T-38)" [
+    "E (T-1)" -> "E (T-11)" [
         fontsize = 8
     ]
 
-    "X (T-1)" -> "X (T-37)" [
+    E -> "E (T-2)" [
         fontsize = 8
     ]
 
-    "X (T-1)" -> "X (T-36)" [
-        fontsize = 8
-    ]
-
-    Z -> "Z (T-27)" [
-        fontsize = 8
-    ]
-
-    Y -> "Y (T-26)" [
-        fontsize = 8
-    ]
-
-    "T-8" -> "T-14" [
-        fontsize = 8
-    ]
-
-    "T-7" -> "T-10" [
-        fontsize = 8
-    ]
-
-    X -> "X (T-2)" [
-        fontsize = 8
-    ]
-
-    X -> "X (T-1)" [
+    E -> "E (T-1)" [
         fontsize = 8
     ]
 }
