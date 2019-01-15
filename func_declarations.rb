@@ -100,14 +100,20 @@ end
 
 def get_line_variables(line, possibleTypes)
 	vars = Array.new
-	line.scan(/[A-Za-z]{1}[A-Za-z0-9_]*[^"]/) do |m|
-		m = m[0...-1]	
+	line.scan(/[A-Za-z]{1}[A-Za-z0-9_]*[^"]\n?/) do |m|
+		# puts "#{m.split("")}"
+		if m =~ /^[A-Za-z]{1}[A-Za-z0-9_]*\"\n?$/
+			# Do nothing. Not a variable.
+		elsif not m =~ /^[A-Za-z]{1}[A-Za-z0-9_]*$/
+			m = m[0...-1]
+		end
+
 		if m == "new" or m == "class" or m == "extends" # or m == [some other keyword]
 			next
 		elsif possibleTypes.include? m
 			next
 		end
-
+		# puts "found var #{m} in linenoine \"#{line}\""
 		vars << m 
 	end
 	return vars
@@ -242,15 +248,24 @@ end
 def add_variable_reference(allReferences, newRef)
 	found = false
 	allReferences.each do |ref|
+		
+		# Inserting a reference twice will cause an infinite loop
+		if ref.name == newRef.name and ref.line_found == newRef.line_found and ref.declared_type == newRef.declared_type
+			return false
+		end
+
 		if ref.name == newRef.name and ref.line_found == newRef.line_found
 			found = true
 			ref.declared_type = newRef.declared_type
+			return true
 		end
 	end
 	if not found
 		# puts "adding reference to var #{newRef.name.split("")}"
 		allReferences << newRef
+		return true
 	end
+	return false
 end
 
 def setup_variable_types(allTypes, local_vars, global_vars)
@@ -286,7 +301,7 @@ end
 #
 # 	3. local_vars:
 # 	A dictionary that contains each function's variables whose types were declared.
-def get_program_declarations_aux(text, functions_dict, global_vars, local_vars)
+def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, var_references)
 	changed = false
 
 	text.gsub!(/\r\n?/, "\n")
@@ -297,7 +312,6 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars)
 	max_scope = -1
 	first_function = true
 	func_name = ""
-	var_references = Array.new
 	allVariableTypes = Array.new
 
 	setup_variable_types(allVariableTypes, local_vars, global_vars)
@@ -428,11 +442,16 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars)
 				vars.each do |var|
 					if global_vars.keys.include?(var)
 						ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global")
-						add_variable_reference(var_references, ref)
+						# puts "ref to #{var} at line #{ind}"
+						if add_variable_reference(var_references, ref)
+							changed = true
+						end
 						# puts "Line #{ind}: Var #{var} is global declared at #{global_vars[var].lineno}"
 					elsif functions_dict.keys.include?(var)
 						ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func")
-						add_variable_reference(var_references, ref)
+						if add_variable_reference(var_references, ref)
+							changed = true
+						end
 						# puts "Line #{ind}: Var #{var} is function defined at line #{functions_dict[var].lineno}"
 					end
 				end
@@ -460,38 +479,47 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars)
 					end
 				end
 
-				# Identify all vars in line, and if found in dictionary, print a "reference".
-				current_scope = local_vars[func_name]
-				vars = get_line_variables(line, allVariableTypes)
-				vars.each do |var|
-					if current_scope.keys.include?(var) and global_vars.keys.include?(var)
-						current_scope.delete(var)
-					end
+				if declarations.size == 0
+					# Identify all vars in line, and if found in dictionary, print a "reference".
+					current_scope = local_vars[func_name]
+					vars = get_line_variables(line, allVariableTypes)
+					vars.each do |var|
+						if current_scope.keys.include?(var) and global_vars.keys.include?(var)
+							current_scope.delete(var)
+						end
 
-					if current_scope.keys.include?(var)
-						if global_vars[var] != nil and current_scope[var] != nil
-							current_scope[var].declared_type = global_vars[var].declared_type
+						if current_scope.keys.include?(var)
+							if global_vars[var] != nil and current_scope[var] != nil
+								current_scope[var].declared_type = global_vars[var].declared_type
+							end
+							if current_scope[var].declared_type != ""
+								ref = VariableReference.new(var, current_scope[var].lineno, ind, current_scope[var].declared_type, "local")
+								if add_variable_reference(var_references, ref)
+									changed = true
+								end
+							end
+							# puts "Line #{ind}: Var #{var} is local  declared at line #{current_scope[var].lineno}"
+						elsif global_vars.keys.include?(var)
+							if global_vars[var].declared_type != ""
+								ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global")
+								# puts "ref to #{var} at line #{ind}"
+								if add_variable_reference(var_references, ref)
+									changed = true
+								end
+							end
+							if global_vars[var] != nil and current_scope[var] != nil
+								current_scope[var].declared_type = global_vars[var].declared_type
+							end
+							# puts "Line #{ind}: Var #{var} is global declared at line #{global_vars[var].lineno}"
+						elsif functions_dict.keys.include?(var)
+							ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func")
+							if add_variable_reference(var_references, ref)
+								changed = true
+							end
+							# puts "Line #{ind}: Var #{var} is function defined at line #{functions_dict[var].lineno}"
+						else
+							current_scope[var] = TypeDeclaredVar.new(var, "", func_name, ind, scopeno)
 						end
-						if current_scope[var].declared_type != ""
-							ref = VariableReference.new(var, current_scope[var].lineno, ind, current_scope[var].declared_type, "local")
-							add_variable_reference(var_references, ref)
-						end
-						# puts "Line #{ind}: Var #{var} is local  declared at line #{current_scope[var].lineno}"
-					elsif global_vars.keys.include?(var)
-						if global_vars[var].declared_type != ""
-							ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global")
-							add_variable_reference(var_references, ref)
-						end
-						if global_vars[var] != nil and current_scope[var] != nil
-							current_scope[var].declared_type = global_vars[var].declared_type
-						end
-						# puts "Line #{ind}: Var #{var} is global declared at line #{global_vars[var].lineno}"
-					elsif functions_dict.keys.include?(var)
-						ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func")
-						add_variable_reference(var_references, ref)
-						# puts "Line #{ind}: Var #{var} is function defined at line #{functions_dict[var].lineno}"
-					else
-						current_scope[var] = TypeDeclaredVar.new(var, "", func_name, ind, scopeno)
 					end
 				end
 			else
@@ -506,14 +534,22 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars)
 
 				if declarations.size == 0 # If no declarations found, search for used variables.
 					vars = get_line_variables(line, allVariableTypes)
+					# puts "global_vars = #{global_vars.keys}"
 					vars.each do |var|
+						# puts "found var #{var}"
+						# puts "\"#{line}\" var: #{var.split("")}"
 						if global_vars.keys.include?(var)
 							ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global")
-							add_variable_reference(var_references, ref)
+							# puts "ref to #{var} at line #{ind}"
+							if add_variable_reference(var_references, ref)
+								changed = true
+							end
 							# puts "Line #{ind}: Var #{var} is global declared at #{global_vars[var].lineno}"
 						elsif functions_dict.keys.include?(var)
 							ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func")
-							add_variable_reference(var_references, ref)
+							if add_variable_reference(var_references, ref)
+								changed = true
+							end
 							# puts "Line #{ind}: Var #{var} is function defined at line #{functions_dict[var].lineno}"
 						end
 					end
@@ -555,7 +591,7 @@ def getProgramDeclarationsAndReferences(program_text)
 	res_vars  = Hash.new
 	res_references = Array.new
 
-	res = get_program_declarations_aux(program_text, res_funcs, res_globs, res_vars)
+	res = get_program_declarations_aux(program_text, res_funcs, res_globs, res_vars, res_references)
 
 	changed = true
 
@@ -566,7 +602,7 @@ def getProgramDeclarationsAndReferences(program_text)
 		res_references = res[3]
 		changed   = res[4]
 
-		res = get_program_declarations_aux(program_text, res_funcs, res_globs, res_vars)
+		res = get_program_declarations_aux(program_text, res_funcs, res_globs, res_vars, res_references)
 	end
 	return [res_funcs, res_globs, res_vars, res_references]
 end
@@ -609,7 +645,7 @@ def parse_function_infers(program)
 	f_in.close()
 	f_inferred = `ruby type_infers.rb for_params.ls`
 	functions_dict = Hash.new
-	
+	# puts f_inferred
 	globals = []
 	global_scope = f_inferred.split("-----\n")[1]
 	global_scope.each_line do |line|
@@ -890,6 +926,8 @@ k = (a, b, c) ->
 	b
 	c
 x0 = k(x1, x1, x1)
+
+n = i()
 "
 
 # text = "class A extends int
@@ -910,7 +948,9 @@ inferred_locals = res_var_infers[0]
 inferred_globs  = res_var_infers[1]
 inferred_funcs  = parse_function_infers(text)
 
-# try_to_complete_missing_types(inferred_locals, inferred_globs, inferred_funcs, declared_locals, declared_globs, declared_funcs)
+# puts remove_decls(text)
+
+try_to_complete_missing_types(inferred_locals, inferred_globs, inferred_funcs, declared_locals, declared_globs, declared_funcs)
 
 # text = "class A extends int
 # class B extends A
