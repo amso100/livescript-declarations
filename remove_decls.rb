@@ -38,16 +38,3 @@ def remove_decls(text)
 	end
 	return final_res
 end
-
-# text = "
-# f = (a :- A, b:- B, c, d, e:-     F) ->
-# 	a
-
-# g = (a, b, c) ->
-# 	a
-
-# h = (x :- int, y :- double, z :- A) ->
-# 	x * y
-# "
-
-# puts remove_decls(text)
