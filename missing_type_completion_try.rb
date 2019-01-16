@@ -1,8 +1,9 @@
 def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunctions,
 									declaredLocals, declaredGlobals, declaredFunctions)
+	puts "Local completion:"
 	inferredLocals.each do |inferredVar|
 		if not isArbitraryType(inferredVar.inferred_type)
-			puts "Type of #{inferredVar.name} is #{inferredVar.inferred_type}"
+			# puts "Type of #{inferredVar.name} is #{inferredVar.inferred_type}"
 			next
 		end
 		
@@ -16,9 +17,10 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 
 	puts ""
 
+	puts "Global completion:"
 	inferredGlobals.each do |inferredVar|
 		if not isArbitraryType(inferredVar.inferred_type)
-			puts "Type of #{inferredVar.name} is #{inferredVar.inferred_type}"
+			# puts "Type of #{inferredVar.name} is #{inferredVar.inferred_type}"
 			next
 		end
 		
@@ -32,6 +34,7 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 
 	puts ""
 
+	puts "Functions completion:"
 	inferredFunctions.each_pair do |funcName, inferredFunc|
 		match = find_inferred_func_in_funcs(funcName, declaredFunctions)
 		puts "In function #{inferredFunc.name}"
@@ -46,7 +49,11 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 				puts "#{funcName}  [Return]: #{inferredFunc.return_type}"
 			end
 			inferredFunc.args.each_with_index do |val, index|
-				puts "Arg \##{index+1}: #{val} =:= #{match.args[index].type}"
+				if isArbitraryType(val)
+					puts "Arg \##{index+1}: #{val} =:= #{match.args[index].type}"
+				else
+					puts "Arg \##{index+1}: #{val} =:= #{val}"
+				end
 			end
 		end
 		puts "-----------------------"
