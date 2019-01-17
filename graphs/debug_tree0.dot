@@ -1,116 +1,74 @@
 digraph RGL__DirectedAdjacencyGraph {
-    "X (T-38)" [
+    int [
         fontsize = 8,
-        label = "X (T-38)"
+        label = int
     ]
 
-    "X (T-39)" [
+    "int (T-37)" [
         fontsize = 8,
-        label = "X (T-39)"
+        label = "int (T-37)"
     ]
 
-    "X (T-1)" [
+    "int (T-21)" [
         fontsize = 8,
-        label = "X (T-1)"
+        label = "int (T-21)"
     ]
 
-    "X (T-37)" [
+    "int (T-12)" [
         fontsize = 8,
-        label = "X (T-37)"
+        label = "int (T-12)"
     ]
 
-    "X (T-36)" [
+    "string (T-7)" [
         fontsize = 8,
-        label = "X (T-36)"
+        label = "string (T-7)"
     ]
 
-    Z [
+    "int (T-6)" [
         fontsize = 8,
-        label = Z
+        label = "int (T-6)"
     ]
 
-    "Z (T-27)" [
+    B [
         fontsize = 8,
-        label = "Z (T-27)"
+        label = B
     ]
 
-    Y [
+    M [
         fontsize = 8,
-        label = Y
+        label = M
     ]
 
-    "Y (T-26)" [
+    "M (T-1)" [
         fontsize = 8,
-        label = "Y (T-26)"
+        label = "M (T-1)"
     ]
 
-    "T-8" [
-        fontsize = 8,
-        label = "T-8"
-    ]
-
-    "T-14" [
-        fontsize = 8,
-        label = "T-14"
-    ]
-
-    "T-7" [
-        fontsize = 8,
-        label = "T-7"
-    ]
-
-    "T-10" [
-        fontsize = 8,
-        label = "T-10"
-    ]
-
-    X [
-        fontsize = 8,
-        label = X
-    ]
-
-    "X (T-2)" [
-        fontsize = 8,
-        label = "X (T-2)"
-    ]
-
-    "X (T-38)" -> "X (T-39)" [
+    int -> "int (T-37)" [
         fontsize = 8
     ]
 
-    "X (T-1)" -> "X (T-38)" [
+    "int (T-37)" -> "int (T-21)" [
         fontsize = 8
     ]
 
-    "X (T-1)" -> "X (T-37)" [
+    "int (T-21)" -> "int (T-12)" [
         fontsize = 8
     ]
 
-    "X (T-1)" -> "X (T-36)" [
+    "int (T-12)" -> "string (T-7)" [
         fontsize = 8
     ]
 
-    Z -> "Z (T-27)" [
+    "int (T-12)" -> "int (T-6)" [
         fontsize = 8
     ]
 
-    Y -> "Y (T-26)" [
+    B -> "string (T-7)" [
         fontsize = 8
     ]
 
-    "T-8" -> "T-14" [
-        fontsize = 8
-    ]
-
-    "T-7" -> "T-10" [
-        fontsize = 8
-    ]
-
-    X -> "X (T-2)" [
-        fontsize = 8
-    ]
-
-    X -> "X (T-1)" [
+    M -> "M (T-1)" [
         fontsize = 8
     ]
 }

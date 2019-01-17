@@ -57,35 +57,6 @@ end
 # 	1
 # "
 
-# text = "
-
-# m = new M
-# m := M
-
-# f = (a := A, c:=C) ->
-# 	b := B
-# 	b = new B
-# 	0
-# h = (a := A) ->
-# 	f(a)
-# g = (c := C) ->
-# 	c
-# j =  ->
-# 	\'i\'
-
-# p = (n := N) ->
-# 	j()
-
-# q = (n := N) ->
-# 	g(n)
-
-# s = ->
-# 	q(1)
-
-# k =  ->
-# 	m
-# "
-
 # text = "class A extends int
 # class B extends A
 # class M extends A
@@ -118,24 +89,6 @@ end
 # 	b1
 
 # "
-
-text = "class A extends int
-class B extends A
-class C extends B
-class D extends B
-class E extends B
-
-f = (a :- A,b :- B) ->
-	a
-
-g = (a :- A, b :- B) ->
-	b
-
-c = f(m,n)
-d = g(m,n)
-
-m :- A
-n :- B"
 
 # text = "class A extends int
 # a = b

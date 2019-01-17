@@ -37,7 +37,6 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 	puts "Functions completion:"
 	inferredFunctions.each_pair do |funcName, inferredFunc|
 		match = find_inferred_func_in_funcs(funcName, declaredFunctions)
-		puts "In function #{inferredFunc.name}"
 		if match != nil
 			if isArbitraryType(inferredFunc.return_type)
 				if match.return_type == nil
