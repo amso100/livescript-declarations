@@ -40,23 +40,6 @@ def getProgramDeclarationsAndReferences(program_text)
 	return [res_funcs, res_globs, res_vars, res_references]
 end
 
-# text = "
-# m := M
-# d := D
-
-# f = (a := A, b:= B, c, d, e:=     F) ->
-# 	a
-# g = (a, b, c) ->
-# 	a 
-# 	b
-# 	c
-# h = (x := int, y := double, z := A) ->
-# 	x * y
-
-# j  = (a := D, b := D, c := C) ->
-# 	1
-# "
-
 # text = "class A extends int
 # class B extends A
 # class M extends A
@@ -89,14 +72,6 @@ end
 # 	b1
 
 # "
-
-# text = "class A extends int
-# a = b
-# b = c
-# c = a
-# a :- A
-# b :- B
-# c :- A"
 
 # res_declared = getProgramDeclarationsAndReferences(text)
 # declared_funcs  = res_declared[0]
@@ -151,22 +126,6 @@ end
 # res_local.each do |varType|
 # 	puts "Var #{varType.name} in scope #{varType.scope} is of type #{varType.inferred_type}"
 # end
-
-# text = "
-# class A extends int
-# a = new A
-# a := A 
-# f = (a := A) ->
-# 	a 
-# b = new A
-# g = (a := B, b := B) ->
-# 	b
-# h =      ->
-# 	10
-
-# j =  ->
-# 	\"i\"
-# "
 
 # total_res = res_declared
 

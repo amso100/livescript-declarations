@@ -61,7 +61,6 @@ def parse_for_type(line, local_vars, global_vars, func_name, funcs_dict)
 	var3 = constant_return_statement(line)
 	var4 = function_call_return_statement(line)
 	if var1 != false
-		# puts "111"
 		# puts var1
 		if local_vars[func_name] != nil and local_vars[func_name].keys.include?(var1)
 			return local_vars[func_name][var1].declared_type

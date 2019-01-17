@@ -91,6 +91,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 						functions_dict[func_name].args << FunctionParameter.new(a[0][0], a[1][0])
 					else
 						# puts "var is #{a[0][0]}"
+						local_vars[func_name][a[0][0]] = TypeDeclaredVar.new(a[0][0], "T'-#{aribtrary_count}", func_name, ind, scopeno)
 						functions_dict[func_name].args << FunctionParameter.new(a[0][0], "T'-#{aribtrary_count}")
 						aribtrary_count += 1
 					end
@@ -200,6 +201,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 					# Identify all vars in line, and if found in dictionary, print a "reference".
 					current_scope = local_vars[func_name]
 					vars = get_line_variables(line, allVariableTypes)
+					# puts "#{line} : vars = #{vars}"
 					vars.each do |var|
 						if current_scope.keys.include?(var) and global_vars.keys.include?(var)
 							current_scope.delete(var)
@@ -253,8 +255,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 					vars = get_line_variables(line, allVariableTypes)
 					# puts "global_vars = #{global_vars.keys}"
 					vars.each do |var|
-						# puts "found var #{var}"
-						# puts "\"#{line}\" var: #{var.split("")}"
+						# puts "\"#{line}\" var: #{var}"
 						if global_vars.keys.include?(var)
 							ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global")
 							# puts "ref to #{var} at line #{ind}"
