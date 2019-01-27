@@ -159,14 +159,14 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 				vars = get_line_variables(line, allVariableTypes)
 				vars.each do |var|
 					if global_vars.keys.include?(var)
-						ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global")
+						ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global", scopeno)
 						# puts "ref to #{var} at line #{ind}"
 						if add_variable_reference(var_references, ref)
 							changed = true
 						end
 						# puts "Line #{ind}: Var #{var} is global declared at #{global_vars[var].lineno}"
 					elsif functions_dict.keys.include?(var)
-						ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func")
+						ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func", scopeno)
 						if add_variable_reference(var_references, ref)
 							changed = true
 						end
@@ -212,7 +212,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 								current_scope[var].declared_type = global_vars[var].declared_type
 							end
 							if current_scope[var].declared_type != ""
-								ref = VariableReference.new(var, current_scope[var].lineno, ind, current_scope[var].declared_type, "local")
+								ref = VariableReference.new(var, current_scope[var].lineno, ind, current_scope[var].declared_type, "local", scopeno)
 								if add_variable_reference(var_references, ref)
 									changed = true
 								end
@@ -220,7 +220,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 							# puts "Line #{ind}: Var #{var} is local  declared at line #{current_scope[var].lineno}"
 						elsif global_vars.keys.include?(var)
 							if global_vars[var].declared_type != ""
-								ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global")
+								ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global", scopeno)
 								# puts "ref to #{var} at line #{ind}"
 								if add_variable_reference(var_references, ref)
 									changed = true
@@ -231,7 +231,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 							end
 							# puts "Line #{ind}: Var #{var} is global declared at line #{global_vars[var].lineno}"
 						elsif functions_dict.keys.include?(var)
-							ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func")
+							ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func", scopeno)
 							if add_variable_reference(var_references, ref)
 								changed = true
 							end
@@ -257,14 +257,14 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 					vars.each do |var|
 						# puts "\"#{line}\" var: #{var}"
 						if global_vars.keys.include?(var)
-							ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global")
+							ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global", scopeno)
 							# puts "ref to #{var} at line #{ind}"
 							if add_variable_reference(var_references, ref)
 								changed = true
 							end
 							# puts "Line #{ind}: Var #{var} is global declared at #{global_vars[var].lineno}"
 						elsif functions_dict.keys.include?(var)
-							ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func")
+							ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func", scopeno)
 							if add_variable_reference(var_references, ref)
 								changed = true
 							end

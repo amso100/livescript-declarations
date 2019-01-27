@@ -34,13 +34,15 @@ class VariableReference
 	# line_found: Line in which urrent instance was found
 	# declared_type: The type this var was declared with (If function, nil)
 	# kind: local | global | func
-	attr_accessor :name, :line_declared, :line_found, :declared_type, :kind
-	def initialize(name, line_declared, line_found, decl_type, kind)
+	attr_accessor :name, :line_declared, :line_found, :declared_type, :kind, :scope, :inferred_type
+	def initialize(name, line_declared, line_found, decl_type, kind, scope)
 		@name = name
 		@line_declared = line_declared
 		@line_found = line_found
 		@declared_type = decl_type
 		@kind = kind
+		@scope = scope
+		@inferred_type = ""
 	end
 end
 

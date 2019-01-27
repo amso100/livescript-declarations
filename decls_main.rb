@@ -14,6 +14,64 @@ if ARGV[0].split('.')[-1] != 'ls'
 	exit()
 end
 
+def get_function_type(funcData)
+	str = ""
+	funcData.args.each do |arg|
+		str += "#{arg}->"
+	end
+	str += funcData.return_type
+	return str
+end
+
+def fill_inferred_types_in_references(var_references, inferred_locals, inferred_globs, inferred_funcs)
+	var_references.each do |ref|
+		scopeno = ref.scope
+		if ref.kind == "func"
+			inferred_funcs.each_pair do |funcName, func|
+				if ref.name == funcName
+					ref.inferred_type = get_function_type(func)
+					break
+				end
+			end
+		elsif ref.kind == "global"
+			inferred_globs.each do |global_var|
+				if ref.name == global_var.name
+					ref.inferred_type = global_var.inferred_type
+					break
+				end
+			end
+		else # regular local variable, might be reference to global or func though.
+			found = false
+			inferred_locals.each do |local_var|
+				if ref.name == local_var.name and ref.scope == local_var.scope
+					ref.inferred_type = local_var.inferred_type
+					found = true
+					break
+				end
+			end
+			if not found
+				inferred_globs.each do |global_var|
+					if ref.name == global_var.name
+						ref.inferred_type = global_var.inferred_type
+						ref.kind = "global"
+						found = true
+						break
+					end
+				end
+			elsif not found
+				inferred_funcs.each_pair do |funcName, func|
+					if ref.name == funcName
+						ref.inferred_type = get_function_type(func)
+						ref.kind = "func"
+						found = true
+						break
+					end
+				end
+			end
+		end
+	end
+end
+
 f_prog = File.open(ls_file, "r")
 text = f_prog.read
 f_prog.close()
@@ -30,6 +88,8 @@ inferred_globs  = res_var_infers[1]
 inferred_funcs  = parse_function_infers(text)
 
 try_to_complete_missing_types(inferred_locals, inferred_globs, inferred_funcs, declared_locals, declared_globs, declared_funcs)
+
+fill_inferred_types_in_references(res_references, inferred_locals, inferred_globs, inferred_funcs)
 
 puts "Functions:"
 declared_funcs.each_pair do |key, value|
@@ -48,7 +108,7 @@ puts "Globals:"
 declared_globs.each_pair do |key, value|
 	puts "Global name: #{value.name}"
 	puts "Global Type: #{value.declared_type}"
-	puts "Global line: #{value.lineno}"
+	puts "Global line: #{value.lineno+1}"
 	puts ""
 end
 
@@ -59,7 +119,7 @@ declared_locals.each_pair do |key, data|
 		puts "\tVar name: #{value.name}"
 		puts "\tVar Scope: #{value.scope}"
 		puts "\tVar Type: #{value.declared_type}"
-		puts "\tVar line: #{value.lineno}"
+		puts "\tVar line: #{value.lineno+1}"
 		puts "\t----------"
 	end
 	puts "------------------"
@@ -69,11 +129,8 @@ puts ""
 
 puts "Variable References:"
 res_references.each do |data|
-	puts "\tVariable #{data.name} used in line #{data.line_found}:"
-	puts "\tVariable kind is #{data.kind}"
-	if data.declared_type != nil
-		puts "\tVariable declared as #{data.declared_type}"
+	if data.declared_type == nil
+		data.declared_type = "func"
 	end
-	puts "\tVariable declared in line #{data.line_declared}"
-	puts "\t----------"
+	puts "\tline #{data.line_found+1}: \"#{data.name}\", #{data.kind} [declared: line #{data.line_declared+1}, as #{data.declared_type}], type #{data.inferred_type}"
 end

@@ -14,9 +14,6 @@ def parse_function_infers(program)
 			func_name = function_data[0]
 			func_args_return = function_data[1].split("->")
 			return_type = func_args_return.pop(1)[0].strip
-			# puts "Func name: #{func_name}"
-			# puts "Return Type: #{return_type}"
-			# puts "Args List:"
 			
 			functions_dict[func_name] = TypeInferredFunction.new(func_name, return_type)
 
