@@ -23,6 +23,15 @@ def get_function_type(funcData)
 	return str
 end
 
+def getDeclared_function_type(funcData, retType)
+	str = ""
+	funcData.args.each do |arg|
+		str += "#{arg.type}->"
+	end
+	str += retType
+	return str
+end
+
 def fill_inferred_types_in_references(var_references, inferred_locals, inferred_globs, inferred_funcs)
 	var_references.each do |ref|
 		scopeno = ref.scope
@@ -51,7 +60,7 @@ def fill_inferred_types_in_references(var_references, inferred_locals, inferred_
 			end
 			if not found
 				inferred_globs.each do |global_var|
-					if ref.name == global_var.name
+					if ref.name == global_var.name and ref.kind == "global"
 						ref.inferred_type = global_var.inferred_type
 						ref.kind = "global"
 						found = true
@@ -93,39 +102,42 @@ fill_inferred_types_in_references(res_references, inferred_locals, inferred_glob
 
 puts "Functions:"
 declared_funcs.each_pair do |key, value|
-	puts "Function name: #{value.name}"
-	puts "Function Scope: #{value.scope}"
-	puts "Arg types: #{value.args.map {|arg| arg.type}}"
-	if value.return_type != nil
-		puts "Return Type: #{value.return_type}"
-	else
-		puts "Return Type: Could not be determined."
-	end
-	puts ""
+	funcType = declared_funcs[value.name].return_type
+	funcType = getDeclared_function_type(value, funcType)
+	puts "\tline #{value.lineno+1}: \"#{value.name}\", function, #{funcType}"
+	# puts "Function name: #{value.name}"
+	# puts "Function Scope: #{value.scope}"
+	# puts "Arg types: #{value.args.map {|arg| arg.type}}"
+	# if value.return_type != nil
+	# 	puts "Return Type: #{value.return_type}"
+	# else
+	# 	puts "Return Type: Could not be determined."
+	# end
+	# puts ""
 end
 
-puts "Globals:"
-declared_globs.each_pair do |key, value|
-	puts "Global name: #{value.name}"
-	puts "Global Type: #{value.declared_type}"
-	puts "Global line: #{value.lineno+1}"
-	puts ""
-end
+# puts "Globals:"
+# declared_globs.each_pair do |key, value|
+# 	puts "Global name: #{value.name}"
+# 	puts "Global Type: #{value.declared_type}"
+# 	puts "Global line: #{value.lineno+1}"
+# 	puts ""
+# end
 
-puts "Local Variables:"
-declared_locals.each_pair do |key, data|
-	puts "Local variables in #{key}:"
-	data.each_pair do |k, value|
-		puts "\tVar name: #{value.name}"
-		puts "\tVar Scope: #{value.scope}"
-		puts "\tVar Type: #{value.declared_type}"
-		puts "\tVar line: #{value.lineno+1}"
-		puts "\t----------"
-	end
-	puts "------------------"
-end
+# puts "Local Variables:"
+# declared_locals.each_pair do |key, data|
+# 	puts "Local variables in #{key}:"
+# 	data.each_pair do |k, value|
+# 		puts "\tVar name: #{value.name}"
+# 		puts "\tVar Scope: #{value.scope}"
+# 		puts "\tVar Type: #{value.declared_type}"
+# 		puts "\tVar line: #{value.lineno+1}"
+# 		puts "\t----------"
+# 	end
+# 	puts "------------------"
+# end
 
-puts ""
+# puts ""
 
 puts "Variable References:"
 res_references.each do |data|

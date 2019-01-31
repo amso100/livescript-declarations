@@ -61,7 +61,6 @@ def parse_for_type(line, local_vars, global_vars, func_name, funcs_dict)
 	var3 = constant_return_statement(line)
 	var4 = function_call_return_statement(line)
 	if var1 != false
-		# puts var1
 		if local_vars[func_name] != nil and local_vars[func_name].keys.include?(var1)
 			return local_vars[func_name][var1].declared_type
 		elsif global_vars.keys.include?(var1)
@@ -71,7 +70,6 @@ def parse_for_type(line, local_vars, global_vars, func_name, funcs_dict)
 		end
 
 	elsif var2 != false
-		# puts "222"
 		if local_vars[func_name] != nil and local_vars[func_name].keys.include?(var2)
 			return local_vars[func_name][var2].declared_type
 		elsif global_vars.keys.include?(var2)
@@ -81,12 +79,9 @@ def parse_for_type(line, local_vars, global_vars, func_name, funcs_dict)
 		end
 
 	elsif var3 != nil
-		# puts "333"
 		return var3[1]
 
 	elsif var4 != false
-		# puts "444"
-		# puts var4
 		if funcs_dict.keys.include?(var4)
 			return funcs_dict[var4].return_type
 		end

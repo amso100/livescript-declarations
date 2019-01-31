@@ -35,8 +35,14 @@ def getProgramDeclarationsAndReferences(program_text)
 		res_references = res[3]
 		changed   = res[4]
 
+		#fix_reference_type(res_references)
 		res = get_program_declarations_aux(program_text, res_funcs, res_globs, res_vars, res_references)
 	end
+	res_funcs = res[0]
+	res_globs = res[1]
+	res_vars  = res[2]
+	res_references = res[3]
+	# fix_reference_type(res_references)
 	return [res_funcs, res_globs, res_vars, res_references]
 end
 

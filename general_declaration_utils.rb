@@ -39,7 +39,7 @@ end
 
 def update_relevant_global_references(allReferences, varName, lineDeclared)
 	allReferences.each do |var|
-		if var.name == varName
+		if var.name == varName and var.kind == "global"
 			var.line_declared = lineDeclared
 		end
 	end
@@ -74,4 +74,12 @@ end
 
 def find_inferred_func_in_funcs(func, declaredFunctions)
 	return declaredFunctions[func]
+end
+
+def fix_reference_type(allReferences)
+	allReferences.each do |ref|
+		if ref.scope != 0
+			ref.kind = "local"
+		end
+	end
 end
