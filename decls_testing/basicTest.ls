@@ -2,8 +2,8 @@
 class A extends int
 a = new A
 a :- A 
-f = (a :- A) ->
-	a 
+f = (d :- A) ->
+	d 
 b = new A
 g = (a :- B, c :- B) ->
 	a
