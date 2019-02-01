@@ -51,7 +51,16 @@ def function_call_return_statement(line)
 	end
 end
 
-def parse_for_type(line, local_vars, global_vars, func_name, funcs_dict)
+def check_global_references(var, var_references)
+	var_references.each do |ref|
+		if var == ref.name and ref.kind == "global"
+			return ref
+		end
+	end
+	return nil
+end
+
+def parse_for_type(line, local_vars, global_vars, func_name, funcs_dict, var_references)
 	if lineHasGlobalVariable(line)
 		return nil
 	end
@@ -61,12 +70,18 @@ def parse_for_type(line, local_vars, global_vars, func_name, funcs_dict)
 	var3 = constant_return_statement(line)
 	var4 = function_call_return_statement(line)
 	if var1 != false
+		puts "#{var1}"
 		if local_vars[func_name] != nil and local_vars[func_name].keys.include?(var1)
 			return local_vars[func_name][var1].declared_type
 		elsif global_vars.keys.include?(var1)
 			return global_vars[var1].declared_type
 		else
-			return nil
+			check_global = check_global_references(var1, var_references)
+			if check_global != nil
+				return check_global.declared_type
+			else
+				return nil
+			end
 		end
 
 	elsif var2 != false

@@ -53,7 +53,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 		# Test for function with multiple arguments
 		elsif lineIsParamsFunctionStart(line)
 			if in_function == true
-				ret_type = parse_for_type(prev_line, local_vars, global_vars, func_name, functions_dict)
+				ret_type = parse_for_type(prev_line, local_vars, global_vars, func_name, functions_dict, var_references)
 				if ret_type != nil
 					functions_dict[func_name].return_type = ret_type
 				else
@@ -104,7 +104,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 		# Test for functions without any arguments
 		elsif lineIsNoParamsFunctionStart(line)
 			if in_function == true
-				ret_type = parse_for_type(prev_line, local_vars, global_vars, func_name, functions_dict)
+				ret_type = parse_for_type(prev_line, local_vars, global_vars, func_name, functions_dict, var_references)
 				if ret_type != nil
 					functions_dict[func_name].return_type = ret_type
 				else
@@ -135,7 +135,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 
 		# If exited scope and previous line is not null, parse
 		elsif prev_line != nil and count_tabs_at_start(line) == 0 and count_tabs_at_start(prev_line) > 0
-			ret_type = parse_for_type(prev_line, local_vars, global_vars, func_name, functions_dict)
+			ret_type = parse_for_type(prev_line, local_vars, global_vars, func_name, functions_dict, var_references)
 			if ret_type != nil
 				functions_dict[func_name].return_type = ret_type
 			else
@@ -159,18 +159,24 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 				vars = get_line_variables(line, allVariableTypes)
 				vars.each do |var|
 					if global_vars.keys.include?(var)
-						ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global", scopeno)
+						ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global", 0)
 						# puts "ref to #{var} at line #{ind}"
 						if add_variable_reference(var_references, ref)
 							changed = true
 						end
 						# puts "Line #{ind}: Var #{var} is global declared at #{global_vars[var].lineno}"
 					elsif functions_dict.keys.include?(var)
-						ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func", scopeno)
+						ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func", 0)
 						if add_variable_reference(var_references, ref)
 							changed = true
 						end
 						# puts "Line #{ind}: Var #{var} is function defined at line #{functions_dict[var].lineno}"
+					else
+						ref = VariableReference.new(var, -1, ind, "T'-#{aribtrary_count}", "global", 0)
+						aribtrary_count += 1
+						if add_variable_reference(var_references, ref)
+							changed = true
+						end
 					end
 				end
 			end
@@ -236,8 +242,17 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 							end
 							# puts "Line #{ind}: Var #{var} is function defined at line #{functions_dict[var].lineno}"
 						else
-							current_scope[var] = TypeDeclaredVar.new(var, "T'-#{aribtrary_count}", func_name, ind, scopeno)
-							aribtrary_count += 1
+							need = true
+							var_references.each do |ref|
+								# puts "#{ref.name} =?= #{var} ; #{ref.kind} ; #{ref.line_found}"
+								if ref.name == var and ref.kind == "global"
+									need = false
+								end
+							end
+							if need
+								current_scope[var] = TypeDeclaredVar.new(var, "T'-#{aribtrary_count}", func_name, ind, scopeno)
+								aribtrary_count += 1
+							end
 						end
 					end
 				end
@@ -267,6 +282,12 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 								changed = true
 							end
 							# puts "Line #{ind}: Var #{var} is function defined at line #{functions_dict[var].lineno}"
+						else
+							ref = VariableReference.new(var, -1, ind, "T'-#{aribtrary_count}", "global", 0)
+							aribtrary_count += 1
+							if add_variable_reference(var_references, ref)
+								changed = true
+							end
 						end
 					end
 				end
@@ -281,7 +302,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 
 	# If exited program with a "leftover" line remaining, test it.
 	if prev_line != nil and count_tabs_at_start(prev_line) > 0
-		ret_type = parse_for_type(prev_line, local_vars, global_vars, func_name, functions_dict)
+		ret_type = parse_for_type(prev_line, local_vars, global_vars, func_name, functions_dict, var_references)
 		functions_dict[func_name].return_type = ret_type
 	end
 
@@ -293,6 +314,17 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 			end
 		end
 	end
+
+	global_vars.each do |name, var|
+		if allVariableTypes.include? name
+			global_vars.delete(name)
+		end
+	end 
+
+	allVariableTypes.each do |type|
+		puts "var type: #{type}"
+	end
+	var_references.reject! { |ref| allVariableTypes.include? ref.name }
 
 	return [functions_dict, global_vars, local_vars, var_references, changed]
 end

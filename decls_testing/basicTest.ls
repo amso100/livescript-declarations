@@ -7,6 +7,7 @@ f = (a :- A) ->
 b = new A
 g = (a :- B, c :- B) ->
 	a
+	c
 	b
 h =      ->
 	10

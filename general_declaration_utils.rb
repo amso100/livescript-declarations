@@ -35,6 +35,7 @@ def setup_variable_types(allTypes, local_vars, global_vars)
 			allTypes << varData.declared_type
 		end
 	end
+	allTypes << "int" << "string" << "double" << "float" << "char"
 end
 
 def update_relevant_global_references(allReferences, varName, lineDeclared)

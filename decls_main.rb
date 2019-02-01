@@ -96,6 +96,23 @@ inferred_locals = res_var_infers[0]
 inferred_globs  = res_var_infers[1]
 inferred_funcs  = parse_function_infers(text)
 
+puts "Inferred Variables:"
+inferred_locals.each do |var|
+	declared_funcs.each_pair do |name, funcData|
+		if var.scope == funcData.scope
+			puts "\tinferred #{var.name} [in function #{funcData.name}] as type #{var.inferred_type}"
+		end
+	end
+end
+inferred_globs.each do |var|
+	puts "\tinferred #{var.name} [global] as type #{var.inferred_type}"
+end
+inferred_funcs.each_pair do |name, func|
+	puts "\tinferred #{func.name} [function] as type #{get_function_type(func)}"
+end
+
+puts ""
+
 try_to_complete_missing_types(inferred_locals, inferred_globs, inferred_funcs, declared_locals, declared_globs, declared_funcs)
 
 fill_inferred_types_in_references(res_references, inferred_locals, inferred_globs, inferred_funcs)
@@ -143,6 +160,9 @@ puts "Variable References:"
 res_references.each do |data|
 	if data.declared_type == nil
 		data.declared_type = "func"
+	end
+	if data.inferred_type == ""
+		data.inferred_type = "?"
 	end
 	puts "\tline #{data.line_found+1}: \"#{data.name}\", #{data.kind} [declared: line #{data.line_declared+1}, as #{data.declared_type}], type #{data.inferred_type}"
 end
