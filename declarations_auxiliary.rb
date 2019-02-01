@@ -172,7 +172,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 						end
 						# puts "Line #{ind}: Var #{var} is function defined at line #{functions_dict[var].lineno}"
 					else
-						ref = VariableReference.new(var, -1, ind, "T'-#{aribtrary_count}", "global", 0)
+						ref = VariableReference.new(var, -2, ind, "T'-#{aribtrary_count}", "global", 0)
 						aribtrary_count += 1
 						if add_variable_reference(var_references, ref)
 							changed = true

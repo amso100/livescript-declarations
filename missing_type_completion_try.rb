@@ -36,6 +36,7 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 
 	puts "Functions completion:"
 	inferredFunctions.each_pair do |funcName, inferredFunc|
+		puts "Function #{funcName}"
 		match = find_inferred_func_in_funcs(funcName, declaredFunctions)
 		if match != nil
 			if isArbitraryType(inferredFunc.return_type)
@@ -44,15 +45,15 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 				else
 					puts "#{funcName}  [Return]: #{inferredFunc.return_type} =:= #{match.return_type}"
 				end
-			else
-				puts "#{funcName}  [Return]: #{inferredFunc.return_type}"
+			# else
+			# 	puts "#{funcName}  [Return]: #{inferredFunc.return_type}"
 			end
 			inferredFunc.args.each_with_index do |val, index|
 				if isArbitraryType(val)
 					puts "Arg \##{index+1}: #{val} =:= #{match.args[index].type}"
-				else
-					# If inferred correctly, no need to give our declaration, especially if there wasn't one
-					puts "Arg \##{index+1}: #{val} =:= #{val}"
+				# else
+				# 	# If inferred correctly, no need to give our declaration, especially if there wasn't one
+				# 	puts "Arg \##{index+1}: #{val} =:= #{val}"
 				end
 			end
 		end
