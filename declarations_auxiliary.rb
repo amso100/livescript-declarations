@@ -321,9 +321,6 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 		end
 	end 
 
-	allVariableTypes.each do |type|
-		puts "var type: #{type}"
-	end
 	var_references.reject! { |ref| allVariableTypes.include? ref.name }
 
 	return [functions_dict, global_vars, local_vars, var_references, changed]
