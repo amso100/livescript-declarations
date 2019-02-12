@@ -1,5 +1,8 @@
+# Functions for completion of missing types that the Type Inference part did not manage to complete.
+
 def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunctions,
-									declaredLocals, declaredGlobals, declaredFunctions)
+									declaredLocals, declaredGlobals, declaredFunctions,
+									var_references)
 	puts "Local completion:"
 	inferredLocals.each do |inferredVar|
 		if not isArbitraryType(inferredVar.inferred_type)
@@ -58,5 +61,12 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 			end
 		end
 		puts "-----------------------"
+	end
+
+	puts "Completion by References"
+	var_references.each do |ref|
+		if isArbitraryType(ref.inferred_type) and not isArbitraryType(ref.declared_type)
+			puts "#{ref.name}: #{ref.inferred_type} =:= #{ref.declared_type}"
+		end
 	end
 end

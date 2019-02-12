@@ -5,9 +5,9 @@ a :- A
 f = (a :- A) ->
 	a 
 b = new A
-g = (a :- B, c :- B) ->
+g = (a :- B, b) ->
 	a
-	b
+	b = a
 h =      ->
 	10
 

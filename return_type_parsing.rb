@@ -6,6 +6,18 @@ def single_var_return_statement(line)
 	end
 end
 
+def var_equals_var_statement(line)
+	if line =~ /^[\t]?[A-Za-z]+[A-Za-z0-9_]* *= *[A-Za-z]+[A-Za-z0-9_]*$/
+		var0 = line[/[A-Za-z0-9_]+/]
+		i1 = line.index('=')
+		line = line[i1..-1]
+		var1 = line[/[A-Za-z0-9_]+/]
+		return [var0, var1]
+	else
+		return false
+	end
+end
+
 def var_equals_exp_return_statement(line)
 	if line =~ /^\t+[A-Za-z]+[A-Za-z0-9_]* *= *.+/
 		return line[/[A-Za-z0-9_]+/]
@@ -66,10 +78,26 @@ def parse_for_type(line, local_vars, global_vars, func_name, funcs_dict, var_ref
 	end
 	# puts line
 	var1 = single_var_return_statement(line)
+	var12 = var_equals_var_statement(line)
 	var2 = var_equals_exp_return_statement(line)
 	var3 = constant_return_statement(line)
 	var4 = function_call_return_statement(line)
 	if var1 != false
+		if local_vars[func_name] != nil and local_vars[func_name].keys.include?(var1)
+			return local_vars[func_name][var1].declared_type
+		elsif global_vars.keys.include?(var1)
+			return global_vars[var1].declared_type
+		else
+			check_global = check_global_references(var1, var_references)
+			if check_global != nil
+				return check_global.declared_type
+			else
+				return nil
+			end
+		end
+
+	elsif var12 != false
+		var1 = var12[1]
 		if local_vars[func_name] != nil and local_vars[func_name].keys.include?(var1)
 			return local_vars[func_name][var1].declared_type
 		elsif global_vars.keys.include?(var1)
@@ -105,4 +133,45 @@ def parse_for_type(line, local_vars, global_vars, func_name, funcs_dict, var_ref
 	end
 	return nil
 
+end
+
+def local_parse_for_type(cur_line, local_vars, var_references)
+	var0 = var_equals_var_statement(cur_line)
+	if var0 == false
+		return nil
+	end
+	var1 = var0[1]
+	var0 = var0[0]
+	if var1 != nil
+		if local_vars.include? var1
+			return [var0, local_vars[var1].declared_type]
+		else
+			var_references.each do |ref|
+				if ref.name == var1 and ref != nil and ref.declared_type != nil and ref.declared_type != ""
+					return [var0, ref.declared_type]
+				end
+			end
+		end
+	end
+	return nil
+end
+
+def global_parse_for_type(cur_line, global_vars, var_references)
+	var0 = var_equals_var_statement(cur_line)
+	if var0 == false
+		return nil
+	end
+	var1 = var0[1]
+	var0 = var0[0]
+	if var1 != nil
+		if global_vars.include? var1
+			return [var0, global_vars[var1].declared_type]
+		else
+			ref = check_global_references(var1, var_references)
+			if ref != nil and ref.declared_type != nil and ref.declared_type != ""
+				return [var0, ref.declared_type]
+			end
+		end
+	end
+	return nil
 end

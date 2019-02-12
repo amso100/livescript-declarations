@@ -3,7 +3,7 @@ def add_variable_reference(allReferences, newRef)
 	allReferences.each do |ref|
 		
 		# Inserting a reference twice will cause an infinite loop
-		if ref.name == newRef.name and ref.line_found == newRef.line_found and ref.declared_type == newRef.declared_type
+		if ref.name == newRef.name and ref.line_found == newRef.line_found
 			return false
 		end
 
@@ -38,10 +38,11 @@ def setup_variable_types(allTypes, local_vars, global_vars)
 	allTypes << "int" << "string" << "double" << "float" << "char"
 end
 
-def update_relevant_global_references(allReferences, varName, lineDeclared)
+def update_relevant_global_references(allReferences, varName, lineDeclared, typeDeclared)
 	allReferences.each do |var|
 		if var.name == varName and var.kind == "global"
 			var.line_declared = lineDeclared
+			var.declared_type = typeDeclared
 		end
 	end
 end
