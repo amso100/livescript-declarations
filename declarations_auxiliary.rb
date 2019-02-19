@@ -191,7 +191,15 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 				# puts "Regular function line"
 				declarations = get_line_declarations(line, allVariableTypes)
 				declarations.each_pair do |name, type|
+					if local_vars[func_name][name] == nil or local_vars[func_name][name].declared_type == nil
+						changed = true
+					end
 					local_vars[func_name][name] = TypeDeclaredVar.new(name, type, func_name, ind, scopeno)
+					var_references.each do |varRef|
+						if varRef.scope == scopeno and varRef.name == name and varRef.declared_type == nil
+							varRef.declared_type = type
+						end
+					end
 				end
 
 				# Check if one of the declared vars is also a parameter, and if so, update the function.

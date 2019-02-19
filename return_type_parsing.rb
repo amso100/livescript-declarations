@@ -143,11 +143,11 @@ def local_parse_for_type(cur_line, local_vars, var_references)
 	var1 = var0[1]
 	var0 = var0[0]
 	if var1 != nil
-		if local_vars.include? var1
+		if local_vars.include? var1 and not isArbitraryType(local_vars[var1].declared_type)
 			return [var0, local_vars[var1].declared_type]
 		else
 			var_references.each do |ref|
-				if ref.name == var1 and ref != nil and ref.declared_type != nil and ref.declared_type != ""
+				if ref.name == var1 and ref != nil and ref.declared_type != nil and not isArbitraryType(ref.declared_type)
 					return [var0, ref.declared_type]
 				end
 			end
