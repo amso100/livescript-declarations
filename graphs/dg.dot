@@ -1,27 +1,32 @@
 digraph RGL__DirectedAdjacencyGraph {
-    "T-12" [
+    "T-18" [
         fontsize = 8,
-        label = "T-12"
+        label = "T-18"
     ]
 
-    "T-20" [
+    "T-19" [
         fontsize = 8,
-        label = "T-20"
+        label = "T-19"
     ]
 
-    "T-15" [
+    "T-10" [
         fontsize = 8,
-        label = "T-15"
+        label = "T-10"
     ]
 
-    "T-14" [
+    "T-17" [
         fontsize = 8,
-        label = "T-14"
+        label = "T-17"
     ]
 
-    "T-11" [
+    "T-7" [
         fontsize = 8,
-        label = "T-11"
+        label = "T-7"
+    ]
+
+    "T-9" [
+        fontsize = 8,
+        label = "T-9"
     ]
 
     "T-5" [
@@ -29,9 +34,9 @@ digraph RGL__DirectedAdjacencyGraph {
         label = "T-5"
     ]
 
-    "T-13" [
+    "T-8" [
         fontsize = 8,
-        label = "T-13"
+        label = "T-8"
     ]
 
     "T-6" [
@@ -39,31 +44,39 @@ digraph RGL__DirectedAdjacencyGraph {
         label = "T-6"
     ]
 
-    "T-12" -> "T-20" [
+    "T-18" -> "T-19" [
         fontsize = 8
     ]
 
-    "T-15" -> "T-12" [
+    "T-18" -> "T-17" [
         fontsize = 8
     ]
 
-    "T-15" -> "T-6" [
+    "T-10" -> "T-10" [
         fontsize = 8
     ]
 
-    "T-14" -> "T-11" [
+    "T-10" -> "T-5" [
         fontsize = 8
     ]
 
-    "T-14" -> "T-5" [
+    "T-17" -> "T-18" [
         fontsize = 8
     ]
 
-    "T-5" -> "T-13" [
+    "T-7" -> "T-9" [
         fontsize = 8
     ]
 
-    "T-6" -> "T-5" [
+    "T-7" -> "T-6" [
+        fontsize = 8
+    ]
+
+    "T-8" -> "T-7" [
+        fontsize = 8
+    ]
+
+    "T-6" -> "T-8" [
         fontsize = 8
     ]
 }

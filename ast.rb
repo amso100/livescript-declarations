@@ -1,11 +1,22 @@
 require "./nodes.rb"
 require "./scope.rb"
+require "./unify.rb"
 
 class Ast
 	attr_accessor :defined_vars
 	def initialize(ast_json)
 		Node.scope = ClassScope.new("__global__") 
 		@head= parseAstFromJsonToNodes(ast_json)
+	end
+
+	def inputCompletionHash(completionHash)
+		completionHash.each_pair do |varType, constType|
+			unifier = ClassScope.unifier
+			eq1 = Equation.new(Constant.new(constType), TypeVar.new(varType))
+			eq2 = Equation.new(TypeVar.new(varType), Constant.new(constType))
+			unifier.add_equation(eq1)
+			unifier.add_equation(eq2)
+		end
 	end
 
 	def get_vars

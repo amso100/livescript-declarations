@@ -2,6 +2,8 @@
 # the other functions and print (or convert to json later)
 
 require("./program_declarations.rb")
+require "json"
+require "./ast.rb"
 
 if ARGV.size == 0
 	puts("File name missing")
@@ -11,6 +13,12 @@ end
 ls_file = ARGV[0]
 if ARGV[0].split('.')[-1] != 'ls'
 	puts("Must be a livescript file")
+	exit()
+end
+
+ls_file = ARGV[0]
+ast = `lsc --ast --json #{ls_file}`	
+if ast == ""
 	exit()
 end
 
@@ -194,7 +202,7 @@ fill_inferred_types_in_references(res_references, inferred_locals, inferred_glob
 
 fill_types_from_references(declared_locals, declared_globs, res_references)
 
-try_to_complete_missing_types(inferred_locals, inferred_globs, inferred_funcs, declared_locals, declared_globs, declared_funcs, res_references)
+resultCompletion = try_to_complete_missing_types(inferred_locals, inferred_globs, inferred_funcs, declared_locals, declared_globs, declared_funcs, res_references)
 
 fill_inferred_types_in_references(res_references, inferred_locals, inferred_globs, inferred_funcs, declared_funcs)
 
@@ -250,3 +258,50 @@ res_references.each do |data|
 	end
 	puts "\tline #{data.line_found+1}: \"#{data.name}\", #{data.kind} [declared: line #{data.line_declared+1}, as #{data.declared_type}], type #{data.inferred_type}"
 end
+
+ast_j = JSON.parse(ast)
+
+
+def isLineArrayIndexGetter(line)
+	line['type'] == "Assign" && line['right']['type'] == "Chain" && line['right']['tails'][0]['type'] == "Index"
+end
+
+def changeIndexGetToMethodGet(line)
+	array = line['right']['head'].clone
+	index = line['right']['tails'][0]['key']['it'].clone
+
+	line['right']['head']['value'] = "get"
+	line['right']['tails'][0]['type'] = "Call"
+	line['right']['tails'][0]['args'] = [array, index]
+end
+
+def changeIndexSetToMethodSet(line)
+	line['type'] = "Chain"
+	headOfChainBefore = line['left']['head'].clone
+	array = line['left']['head'].clone
+	index = line['left']['tails'][0]['key']['it'].clone
+	valueToAssign = line['right'].clone
+	line['head'] = {'type' => "Var", 'value' => "set", 'first_line' => headOfChainBefore['first_line'],
+									'first_column' => headOfChainBefore['first_column'], 'last_line' => headOfChainBefore['last_line'],
+									'last_column' => headOfChainBefore['last_column'], 'line' => headOfChainBefore['line'], 'column' => headOfChainBefore['column']}
+	line['tails'] = [{'type' => "Call", 'args' => [array, index, valueToAssign]}]
+end
+
+def isLineArrayIndexSetter(line)
+	line['type'] == "Assign" && line['left']['type'] == "Chain" && line['left']['tails'][0]['type'] == "Index"
+end
+
+ast_j['lines'].each {|line|
+	if isLineArrayIndexSetter(line)
+		changeIndexSetToMethodSet(line)
+	end
+	if isLineArrayIndexGetter(line)
+		changeIndexGetToMethodGet(line)
+	end
+}
+# pp ast_j
+ast = Ast.new ast_j
+
+ast.inputCompletionHash(resultCompletion)
+
+ast.get_vars
