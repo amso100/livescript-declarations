@@ -191,12 +191,12 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 				# puts "Regular function line"
 				declarations = get_line_declarations(line, allVariableTypes)
 				declarations.each_pair do |name, type|
-					if local_vars[func_name][name] == nil or local_vars[func_name][name].declared_type == nil
+					if local_vars[func_name][name] == nil or isArbitraryType(local_vars[func_name][name].declared_type)
 						changed = true
 					end
 					local_vars[func_name][name] = TypeDeclaredVar.new(name, type, func_name, ind, scopeno)
 					var_references.each do |varRef|
-						if varRef.scope == scopeno and varRef.name == name and varRef.declared_type == nil
+						if varRef.scope == scopeno and varRef.name == name and isArbitraryType(varRef.declared_type)
 							varRef.declared_type = type
 						end
 					end
@@ -213,12 +213,15 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 
 				if declarations.size == 0
 					# Check if line has '=' statement
-					check_equals_statement = local_parse_for_type(line, local_vars[func_name], var_references)
+					# puts "----------------------------------"
+					# puts "local parse in #{func_name}"
+					check_equals_statement = local_parse_for_type(line, local_vars, func_name, var_references, scopeno, ind)
 					if check_equals_statement != nil
 						assigned_name = check_equals_statement[0]
 						found_type = check_equals_statement[1]
 						var_references.each do |ref|
-							if ref.kind == "local" and ref.name == assigned_name and (ref.declared_type == nil or isArbitraryType(ref.declared_type))
+							if ref.kind == "local" and ref.name == assigned_name and ref.scope == scopeno and  isArbitraryType(ref.declared_type)
+								# puts "update #{func_name}-> #{ref.scope}: #{ref.declared_type} = #{found_type}"
 								ref.declared_type = found_type
 								current_function_args = functions_dict[func_name].args
 								current_function_args.each do |arg|
@@ -245,7 +248,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 							# 	current_scope[var].declared_type = global_vars[var].declared_type
 							# end
 							if current_scope[var].declared_type != ""
-								ref = VariableReference.new(var, current_scope[var].lineno, ind, current_scope[var].declared_type, "local", scopeno)
+								ref = VariableReference.new(var, current_scope[var].lineno, ind, current_scope[var].declared_type, "local", scopeno, func_name)
 								if add_variable_reference(var_references, ref)
 									changed = true
 								end
@@ -324,10 +327,15 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 							end
 							# puts "Line #{ind}: Var #{var} is function defined at line #{functions_dict[var].lineno}"
 						else
-							ref = VariableReference.new(var, -2, ind, "T'-#{aribtrary_count}", "global", 0)
-							aribtrary_count += 1
-							if add_variable_reference(var_references, ref)
-								changed = true
+							if line.include? "class "
+								cls_name = line[5..-1][/[A-Z]+[A-Za-z]/]
+								allVariableTypes << cls_name
+							else
+								ref = VariableReference.new(var, -2, ind, "T'-#{aribtrary_count}", "global", 0)
+								aribtrary_count += 1
+								if add_variable_reference(var_references, ref)
+									changed = true
+								end
 							end
 						end
 					end
@@ -339,6 +347,16 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 			max_scope = scopeno
 		end
 		prev_line = line
+		# puts "Variable References:"
+		# var_references.each do |data|
+		# 	if data.declared_type == nil
+		# 		data.declared_type = "func"
+		# 	end
+		# 	if data.inferred_type == ""
+		# 		data.inferred_type = "?"
+		# 	end
+		# 	puts "\tline #{data.line_found+1}: \"#{data.name}\", #{data.kind} [declared: line #{data.line_declared+1}, as #{data.declared_type}], type #{data.inferred_type}, scope #{data.scope}"
+		# end
 	end
 
 	# If exited program with a "leftover" line remaining, test it.

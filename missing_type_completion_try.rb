@@ -3,6 +3,8 @@
 def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunctions,
 									declaredLocals, declaredGlobals, declaredFunctions,
 									var_references)
+	completionHash = Hash.new
+
 	puts "Local completion:"
 	inferredLocals.each do |inferredVar|
 		if not isArbitraryType(inferredVar.inferred_type)
@@ -15,6 +17,7 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 			puts "#{inferredVar.name}: #{inferredVar.inferred_type} =:= NIL"
 		else
 			puts "#{inferredVar.name}: #{inferredVar.inferred_type} =:= #{match.declared_type}"
+			add_declared_type_to_hash(completionHash, inferredVar.inferred_type, match.declared_type)
 		end
 	end
 
@@ -32,6 +35,7 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 			puts "#{inferredVar.name}: #{inferredVar.inferred_type} =:= NIL"
 		else
 			puts "#{inferredVar.name}: #{inferredVar.inferred_type} =:= #{match.declared_type}"
+			add_declared_type_to_hash(completionHash, inferredVar.inferred_type, match.declared_type)
 		end
 	end
 
@@ -47,16 +51,13 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 					puts "#{funcName}  [Return]: #{inferredFunc.return_type} =:= NIL"
 				else
 					puts "#{funcName}  [Return]: #{inferredFunc.return_type} =:= #{match.return_type}"
+					add_declared_type_to_hash(completionHash, inferredFunc.return_type, match.return_type)
 				end
-			# else
-			# 	puts "#{funcName}  [Return]: #{inferredFunc.return_type}"
 			end
 			inferredFunc.args.each_with_index do |val, index|
 				if isArbitraryType(val)
 					puts "Arg \##{index+1}: #{val} =:= #{match.args[index].type}"
-				# else
-				# 	# If inferred correctly, no need to give our declaration, especially if there wasn't one
-				# 	puts "Arg \##{index+1}: #{val} =:= #{val}"
+					add_declared_type_to_hash(completionHash, val, match.args[index].type)
 				end
 			end
 		end
@@ -65,8 +66,28 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 
 	puts "Completion by References"
 	var_references.each do |ref|
+		if ref.inferred_type.include? "->"
+			next
+		end
 		if isArbitraryType(ref.inferred_type) and not isArbitraryType(ref.declared_type)
 			puts "#{ref.name}: #{ref.inferred_type} =:= #{ref.declared_type}"
 		end
+	end
+
+	puts "Result Hash:"
+	completionHash.each_pair do |key, val|
+		puts "#{key} =:= #{val}"
+	end
+end
+
+def add_declared_type_to_hash(completionHash, inf_type, dec_type)
+	if isArbitraryType(dec_type)
+		puts "Warning! Completion of arbitrary type!"
+	end
+
+	if completionHash[inf_type] == nil
+		completionHash[inf_type] = dec_type
+	elsif completionHash[inf_type] != nil and completionHash[inf_type] != dec_type
+		puts "Error! #{inf_type} has two types! (#{completionHash[inf_type]}, #{dec_type})"
 	end
 end

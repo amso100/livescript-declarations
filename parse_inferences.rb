@@ -57,7 +57,7 @@ def parse_locals_globals_infers(program)
 			tmp << TypeInferredVar.new(name, type, i)
 		end
 
-		if tmp.length == 0
+		if tmp.length == 0 and not scope.include? "_global_"
 			next
 		end
 

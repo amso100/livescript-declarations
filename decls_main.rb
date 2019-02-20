@@ -134,6 +134,25 @@ def fill_inferred_types_in_references(var_references, inferred_locals, inferred_
 	# end
 end
 
+def fill_types_from_references(local_vars, global_vars, var_references)
+	var_references.each do |varRef|
+		if local_vars[varRef.func_name] != nil
+			local_vars[varRef.func_name].each_pair do |name, data|
+				if varRef.name == name and isArbitraryType(data.declared_type)
+					local_vars[varRef.func_name][name].declared_type = varRef.declared_type
+					break
+				end
+			end
+		end
+		global_vars.each_pair do |name, data|
+			if varRef.name == name and isArbitraryType(data.declared_type)
+				global_vars[name].declared_type = varRef.declared_type
+				break
+			end
+		end
+	end
+end
+
 # def fix_arbitraries_by_result(fix_hash, var_references)
 # 	var_references.each do |varRef|
 # 		# fix_hash will contain only arbitrary types
@@ -172,6 +191,8 @@ end
 puts ""
 
 fill_inferred_types_in_references(res_references, inferred_locals, inferred_globs, inferred_funcs, declared_funcs)
+
+fill_types_from_references(declared_locals, declared_globs, res_references)
 
 try_to_complete_missing_types(inferred_locals, inferred_globs, inferred_funcs, declared_locals, declared_globs, declared_funcs, res_references)
 

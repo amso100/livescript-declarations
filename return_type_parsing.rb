@@ -135,7 +135,8 @@ def parse_for_type(line, local_vars, global_vars, func_name, funcs_dict, var_ref
 
 end
 
-def local_parse_for_type(cur_line, local_vars, var_references)
+def local_parse_for_type(cur_line, local_vars, func_name, var_references, scope, line=0)
+	local_vars = local_vars[func_name]
 	var0 = var_equals_var_statement(cur_line)
 	if var0 == false
 		return nil
@@ -144,10 +145,12 @@ def local_parse_for_type(cur_line, local_vars, var_references)
 	var0 = var0[0]
 	if var1 != nil
 		if local_vars.include? var1 and not isArbitraryType(local_vars[var1].declared_type)
+			# puts "11 #{func_name}-> #{line}: #{var0} = #{var1} : #{local_vars[var1].declared_type}"
 			return [var0, local_vars[var1].declared_type]
 		else
 			var_references.each do |ref|
-				if ref.name == var1 and ref != nil and ref.declared_type != nil and not isArbitraryType(ref.declared_type)
+				if ref != nil and ref.name == var1 and ref.scope == scope and ref.declared_type != nil and not isArbitraryType(ref.declared_type)
+					# puts "22 #{func_name}-> #{line}: #{var0} = #{var1} : #{local_vars[var1].declared_type}"
 					return [var0, ref.declared_type]
 				end
 			end
