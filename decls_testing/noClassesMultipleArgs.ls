@@ -8,8 +8,9 @@ g = (a, b, c) ->
 	a 
 	b
 	c
+
 h = (x :- int, y :- double, z :- A) ->
-	x * y
+	x * x
 
 j  = (a :- D, b :- D, c :- C) ->
 	1

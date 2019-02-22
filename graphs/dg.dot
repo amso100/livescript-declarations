@@ -1,15 +1,2 @@
 digraph RGL__DirectedAdjacencyGraph {
-    B [
-        fontsize = 8,
-        label = B
-    ]
-
-    "T-7" [
-        fontsize = 8,
-        label = "T-7"
-    ]
-
-    B -> "T-7" [
-        fontsize = 8
-    ]
 }

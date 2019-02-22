@@ -203,6 +203,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 					var_references.each do |varRef|
 						if varRef.scope == scopeno and varRef.name == name and isArbitraryType(varRef.declared_type)
 							varRef.declared_type = type
+							varRef.line_declared = ind
 						end
 					end
 				end
@@ -285,7 +286,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 								end
 							end
 							if need
-								current_scope[var] = TypeDeclaredVar.new(var, "T'-#{aribtrary_count}", func_name, ind, scopeno)
+								current_scope[var] = TypeDeclaredVar.new(var, "T'-#{aribtrary_count}", func_name, -1, scopeno)
 								aribtrary_count += 1
 							end
 						end

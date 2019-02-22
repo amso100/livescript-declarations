@@ -10,8 +10,5 @@ f = (a :- A,b :- B) ->
 g = (a :- A, b :- B) ->
 	b
 
-c = f(m,n)
-d = g(m,n)
-
 m :- A
 n :- B

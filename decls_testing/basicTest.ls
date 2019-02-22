@@ -1,11 +1,10 @@
 
 class A extends int
-a = new A
-a :- A 
+
 f = (a :- A) ->
 	a 
-b = new A
-g = (a :- B, b) ->
+
+g = (a :- B, b :- B) ->
 	a
 	b = a
 h =      ->

@@ -290,10 +290,10 @@ ast_j['lines'].each {|line|
 # pp ast_j
 ast = Ast.new ast_j
 
-puts "Completion Results:"
-completionHash.each_pair do |arb, comp|
-	puts "#{arb} =:= #{comp}"
-end
+# puts "Completion Results:"
+# completionHash.each_pair do |arb, comp|
+# 	puts "#{arb} =:= #{comp}"
+# end
 
 ast.add_completion_subtype_equations(completionHash)
 
