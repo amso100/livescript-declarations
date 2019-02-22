@@ -343,6 +343,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 
 			end
 		end
+		# puts "#{scopeno} : #{line}"
 		if scopeno >= max_scope
 			max_scope = scopeno
 		end

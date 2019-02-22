@@ -58,6 +58,7 @@ def isArbitraryType(typeName)
 end
 
 def find_inferred_var_in_declared(var, declaredHash)
+	# puts "Searching for #{var.name} (scope #{var.scope})"
 	declaredHash.each_pair do |funcName, localVars|
 		if localVars.size == 0
 			next

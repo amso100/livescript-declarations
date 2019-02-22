@@ -30,6 +30,7 @@ def parse_locals_globals_infers(program)
 	res = []
 	tmp = []
 	globals = []
+	no_globals = false
 	i = 0
 	
 	aux = remove_decls(program)
@@ -57,7 +58,10 @@ def parse_locals_globals_infers(program)
 			tmp << TypeInferredVar.new(name, type, i)
 		end
 
-		if tmp.length == 0 and not scope.include? "_global_"
+		if tmp.length == 0 #and not scope.include? "_global_"
+			if scope.include? "_global_"
+				no_globals = true
+			end
 			next
 		end
 
@@ -70,7 +74,7 @@ def parse_locals_globals_infers(program)
 		res = res + tmp
 	end
 
-	while res.size > 0 and res[0].scope == 0 do
+	while res.size > 0 and res[0].scope == 0 and not no_globals do
 		globals << res[0]
 		res = res.drop(1)
 	end
