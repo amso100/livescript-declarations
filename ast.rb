@@ -9,13 +9,12 @@ class Ast
 		@head= parseAstFromJsonToNodes(ast_json)
 	end
 
-	def inputCompletionHash(completionHash)
-		completionHash.each_pair do |varType, constType|
-			unifier = ClassScope.unifier
-			eq1 = Equation.new(Constant.new(constType), TypeVar.new(varType))
-			eq2 = Equation.new(TypeVar.new(varType), Constant.new(constType))
-			unifier.add_equation(eq1)
-			unifier.add_equation(eq2)
+	def add_completion_subtype_equations(completionHash)
+		completionHash.each_pair do |arbitraryType, completeVal|
+			eq1 = Equation.new(TypeVar.new(arbitraryType), Constant.new(completeVal))
+			eq2 = Equation.new(Constant.new(completeVal), TypeVar.new(arbitraryType))
+			Scope.unifier.add_equation(eq1)
+			Scope.unifier.add_equation(eq2)
 		end
 	end
 

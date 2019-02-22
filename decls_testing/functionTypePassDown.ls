@@ -1,7 +1,7 @@
 class M extends string
 class B extends string
 
-m = new M
+
 m :- M
 
 f = (a :- A, b) ->
@@ -24,7 +24,7 @@ q = (n :- N) ->
 	g(n)
 
 s = ->
-	q(1)
+	q(m)
 
 k =  ->
 	m

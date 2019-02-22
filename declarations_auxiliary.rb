@@ -34,6 +34,8 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 	setup_variable_types(allVariableTypes, local_vars, global_vars)
 	# puts "Types: #{allVariableTypes}"
 
+	
+
 	if global_variables_exist(text)
 		# puts "Globals"
 		scopeno = 1
@@ -152,6 +154,9 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 					global_vars[name] = TypeDeclaredVar.new(name, type, "", ind, scopeno)
 					changed = true
 				end
+				# puts "#{name} :- #{type}"
+				# puts "111"
+				# puts "#{local_vars["g"]["x1"].declared_type}"
 				update_relevant_global_references(var_references, name, ind, type)
 			end
 
@@ -198,6 +203,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 					var_references.each do |varRef|
 						if varRef.scope == scopeno and varRef.name == name and isArbitraryType(varRef.declared_type)
 							varRef.declared_type = type
+							varRef.line_declared = ind
 						end
 					end
 				end
@@ -280,7 +286,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 								end
 							end
 							if need
-								current_scope[var] = TypeDeclaredVar.new(var, "T'-#{aribtrary_count}", func_name, ind, scopeno)
+								current_scope[var] = TypeDeclaredVar.new(var, "T'-#{aribtrary_count}", func_name, -1, scopeno)
 								aribtrary_count += 1
 							end
 						end
@@ -293,6 +299,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 						global_vars[name] = TypeDeclaredVar.new(name, type, "", ind, scopeno)
 						changed = true
 					end
+					# puts "#{name} :- #{type}"
 					update_relevant_global_references(var_references, name, ind, type)
 				end
 
@@ -343,6 +350,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 
 			end
 		end
+		# puts "#{scopeno} : #{line}"
 		if scopeno >= max_scope
 			max_scope = scopeno
 		end
@@ -382,6 +390,8 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 
 	var_references.reject! { |ref| allVariableTypes.include? ref.name }
 	# puts "#{global_vars["a"].declared_type}"
+
+	# fix_globals_identified_local(local_vars, global_vars, var_references)
 
 	return [functions_dict, global_vars, local_vars, var_references, changed]
 end

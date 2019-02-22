@@ -40,7 +40,7 @@ def getProgramDeclarationsAndReferences(program_text)
 	res_funcs = res[0]
 	res_globs = res[1]
 	res_vars  = res[2]
-	res_references = res[3]
+	res_references = res[3].sort_by { |ref| ref.line_found }
 
 	#update_all_incomplete_references(res_references)
 	#clean_accidental_locals(res_references, res_vars)

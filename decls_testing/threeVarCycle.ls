@@ -2,13 +2,9 @@ f = (x :- X) ->
 	b = a
 	c = b
 	a = c
-	a :- K
-e :- L
-e = f(x)
+	a :- A
 
 g = (x :- X) ->
 	b = a
 	a = b
 	b :- M
-n :- N
-n = g(x)

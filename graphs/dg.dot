@@ -1,4 +1,5 @@
 digraph RGL__DirectedAdjacencyGraph {
+<<<<<<< HEAD
     "T-18" [
         fontsize = 8,
         label = "T-18"
@@ -79,4 +80,6 @@ digraph RGL__DirectedAdjacencyGraph {
     "T-6" -> "T-8" [
         fontsize = 8
     ]
+=======
+>>>>>>> temp_fix
 }
