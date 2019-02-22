@@ -8,6 +8,15 @@ class Ast
 		@head= parseAstFromJsonToNodes(ast_json)
 	end
 
+	def add_completion_subtype_equations(completionHash)
+		completionHash.each_pair do |arbitraryType, completeVal|
+			eq1 = Equation.new(TypeVar.new(arbitraryType), Constant.new(completeVal))
+			eq2 = Equation.new(Constant.new(completeVal), TypeVar.new(arbitraryType))
+			Scope.unifier.add_equation(eq1)
+			Scope.unifier.add_equation(eq2)
+		end
+	end
+
 	def get_vars
 		@head.get_vars
 		pp "____BEFORE____"

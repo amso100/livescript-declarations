@@ -34,6 +34,8 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 	setup_variable_types(allVariableTypes, local_vars, global_vars)
 	# puts "Types: #{allVariableTypes}"
 
+	
+
 	if global_variables_exist(text)
 		# puts "Globals"
 		scopeno = 1
@@ -152,6 +154,9 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 					global_vars[name] = TypeDeclaredVar.new(name, type, "", ind, scopeno)
 					changed = true
 				end
+				# puts "#{name} :- #{type}"
+				# puts "111"
+				# puts "#{local_vars["g"]["x1"].declared_type}"
 				update_relevant_global_references(var_references, name, ind, type)
 			end
 
@@ -293,6 +298,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 						global_vars[name] = TypeDeclaredVar.new(name, type, "", ind, scopeno)
 						changed = true
 					end
+					# puts "#{name} :- #{type}"
 					update_relevant_global_references(var_references, name, ind, type)
 				end
 
@@ -383,6 +389,8 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 
 	var_references.reject! { |ref| allVariableTypes.include? ref.name }
 	# puts "#{global_vars["a"].declared_type}"
+
+	# fix_globals_identified_local(local_vars, global_vars, var_references)
 
 	return [functions_dict, global_vars, local_vars, var_references, changed]
 end

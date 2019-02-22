@@ -39,10 +39,16 @@ def setup_variable_types(allTypes, local_vars, global_vars)
 end
 
 def update_relevant_global_references(allReferences, varName, lineDeclared, typeDeclared)
-	allReferences.each do |var|
-		if var.name == varName and var.kind == "global"
-			var.line_declared = lineDeclared
-			var.declared_type = typeDeclared
+	allReferences.each do |ref|
+		if ref.kind == "local" and ref.name == varName #and isArbitraryType()
+			# puts "#{ref.name} : #{ref.kind} : #{ref.scope} : #{ref.declared_type}"
+			ref.kind = "global"
+			ref.declared_type = typeDeclared
+			ref.line_declared = lineDeclared
+
+		elsif ref.name == varName and ref.kind == "global"
+			ref.line_declared = lineDeclared
+			ref.declared_type = typeDeclared
 		end
 	end
 end
@@ -86,3 +92,29 @@ def fix_reference_type(allReferences)
 		end
 	end
 end
+
+def fix_globals_identified_local(local_vars, global_vars, var_references)
+	local_vars.each_pair do |funcName, locals|
+		locals.each_pair do |varName, varData|
+			# puts "Checking: #{varName} of type #{varData.declared_type} (scope #{varData.scope})"
+			if isArbitraryType(varData.declared_type) and global_vars.include? varName
+				# puts "Fixing: #{varName} :- #{global_vars[varName].declared_type}"
+				varData.declared_type = global_vars[varName].declared_type
+				# fix_accidental_local_references(varName, varData, var_references, locals)
+			end
+		end
+	end
+end
+
+# def fix_accidental_local_references(varName, varData, var_references, locals)
+# 	var_references.each do |ref|
+# 		if ref.kind == "local" and ref.scope == varData.scope and ref.name == varName
+			
+# 			if not locals.keys.include? varName
+# 				puts "11"
+# 				ref.kind = "global"
+# 				ref.declared_type = varData.declared_type
+# 			end
+# 		end
+# 	end
+# end
