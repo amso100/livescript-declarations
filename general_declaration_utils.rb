@@ -93,6 +93,18 @@ def fix_reference_type(allReferences)
 	end
 end
 
+def get_all_class_names(program_text)
+	names = Array.new
+	program_text.each_line do |line|
+		if line =~ /class .+/ or line =~ /class .+ extends .+/
+			className = line[/ .+ /].strip
+			names << className
+		end
+	end
+	return names
+end
+
+
 def fix_globals_identified_local(local_vars, global_vars, var_references)
 	local_vars.each_pair do |funcName, locals|
 		locals.each_pair do |varName, varData|

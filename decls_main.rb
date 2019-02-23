@@ -37,6 +37,7 @@ def fill_inferred_types_in_references(var_references, inferred_locals, inferred_
 	fix_hash = Hash.new
 
 	var_references.each do |ref|
+		puts "#{ref.name}, #{ref.line_found}, #{ref.kind}"
 		scopeno = ref.scope
 		if ref.kind == "func"
 			inferred_funcs.each_pair do |funcName, func|
@@ -66,6 +67,7 @@ def fill_inferred_types_in_references(var_references, inferred_locals, inferred_
 		else # regular local variable, might be reference to global or func though.
 			found = false
 			inferred_locals.each do |local_var|
+				puts "local #{local_var.name}, #{local_var.scope}"
 				if ref.name == local_var.name and ref.scope == local_var.scope
 					if isArbitraryType(ref.declared_type)
 						fix_hash[ref.declared_type] = local_var.inferred_type
@@ -77,6 +79,7 @@ def fill_inferred_types_in_references(var_references, inferred_locals, inferred_
 			end
 			if not found
 				inferred_globs.each do |global_var|
+					puts "global #{global_var.name}"
 					if ref.name == global_var.name and ref.kind == "global"
 						if isArbitraryType(ref.declared_type)
 							fix_hash[ref.declared_type] = global_var.inferred_type
@@ -301,7 +304,7 @@ ast = Ast.new ast_j
 # 	puts "#{arb} =:= #{comp}"
 # end
 
-ast.add_completion_subtype_equations(completionHash)
+# ast.add_completion_subtype_equations(completionHash)
 
 ast.get_vars
 puts "--------------------------------------------------------------------------------------------------------------"
@@ -319,7 +322,7 @@ res_references.each do |data|
 	if data.inferred_type == ""
 		data.inferred_type = "?"
 	end
-	puts "\tline #{data.line_found+1}: \"#{data.name}\", #{data.kind} [declared: line #{data.line_declared+1}, as #{data.declared_type}], type #{data.inferred_type}"
+	puts "\tline #{data.line_found+1}: \"#{data.name}\", #{data.kind} [declared: line #{data.line_declared+1}, as #{data.declared_type}], type #{data.inferred_type} (#{data.scope})"
 end
 
 File.delete("decls_free.ls")

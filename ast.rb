@@ -42,4 +42,9 @@ class Ast
 		Node.scope.infer
 		Node.scope.print_vars(0)
 	end
+
+	def print_uninferred_vars
+		@head.get_vars
+		Node.scope.print_vars(0)
+	end
 end

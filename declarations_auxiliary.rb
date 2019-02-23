@@ -18,7 +18,7 @@
 #	var_references: List of type VariableReference
 #
 #	changed: Have any of the structures changed during the pass, to determine if done or not.
-def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, var_references)
+def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, var_references, globals_exist, class_names)
 	changed = false
 
 	text.gsub!(/\r\n?/, "\n")
@@ -36,7 +36,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 
 	
 
-	if global_variables_exist(text)
+	if globals_exist
 		# puts "Globals"
 		scopeno = 1
 	else
@@ -388,6 +388,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 		end
 	end 
 
+	puts allVariableTypes
 	var_references.reject! { |ref| allVariableTypes.include? ref.name }
 	# puts "#{global_vars["a"].declared_type}"
 

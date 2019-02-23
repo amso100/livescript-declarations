@@ -24,7 +24,9 @@ def getProgramDeclarationsAndReferences(program_text)
 	res_vars  = Hash.new
 	res_references = Array.new
 
-	res = get_program_declarations_aux(program_text, res_funcs, res_globs, res_vars, res_references)
+	global_vars_exist = global_variables_exist(program_text)
+
+	res = get_program_declarations_aux(program_text, res_funcs, res_globs, res_vars, res_references, global_vars_exist)
 
 	changed = true
 
@@ -35,7 +37,7 @@ def getProgramDeclarationsAndReferences(program_text)
 		res_references = res[3]
 		changed   = res[4]
 		#clean_accidental_locals(res_references, res_vars)
-		res = get_program_declarations_aux(program_text, res_funcs, res_globs, res_vars, res_references)
+		res = get_program_declarations_aux(program_text, res_funcs, res_globs, res_vars, res_references, global_vars_exist)
 	end
 	res_funcs = res[0]
 	res_globs = res[1]

@@ -1,4 +1,5 @@
 
+require "./ast.rb"
 
 def get_line_declarations(line, allTypes)
 	declarations = Hash.new
@@ -57,14 +58,17 @@ def count_tabs_at_start(line)
 end
 
 def global_variables_exist(text)
-	text.each_line do |line|
-
-		# Only want the global variables, function lines come later.
-		if lineHasGlobalVariable(line) and not lineIsFunctionStart(line)
-
-			# puts line
-			return true
+	f_in = File.open("for_globals.ls", "w")
+	aux = remove_decls(text)
+	f_in.write(aux)
+	f_in.close()
+	uninferred_vars_text = `ruby type_infers.rb for_globals.ls`
+	global_scope = uninferred_vars_text.split("-----\n")[1]
+	global_scope.each_line do |line|
+		if line.include? "->" or line =~ /- [A-Za-z0-9_]+ -/
+			next
 		end
+		return true
 	end
 	return false
 end

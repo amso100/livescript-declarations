@@ -41,20 +41,30 @@ def parse_locals_globals_infers(program)
 	f_inferred = `ruby type_infers.rb for_params.ls`
 	scopes = f_inferred.split("-----\n")
 	scopes.each do |scope|
+		# puts scope
 		if scope =~ /->\n$/ # Empty function
+			# puts "111"
 			i += 1
 			next
 		end
-		if scope.strip.length < 2
+		if scope =~ /- [A-Za-z0-9_]+ -/ and not scope =~ /- __global__ -/
+			# puts "222"
 			next
 		end
+		if scope.strip.length < 2
+			# puts "333"
+			next
+		end
+		# puts "444"
+		# puts i
 		scope.split("\n").each do |var|
-			
+			# puts var
 			if var.include? "->" or var =~ /- [A-Za-z0-9_]+ -/ # Don't want class/funcs declarations
 				next
 			end
 			name = var.split(" : ")[0].strip
 			type = var.split(" : ")[1].strip
+			# puts "#{name}, #{type}"
 			tmp << TypeInferredVar.new(name, type, i)
 		end
 
@@ -68,6 +78,7 @@ def parse_locals_globals_infers(program)
 		res = res + tmp
 		tmp = []
 		i += 1
+		# puts "------------------"
 	end
 
 	if tmp.length > 0
