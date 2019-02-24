@@ -55,10 +55,10 @@ def update_all_incomplete_references(var_references)
 		var_references.each do |ref2|
 			if ref1.name == ref2.name and ref1.scope == ref2.scope
 				if ref1.declared_type == nil or isArbitraryType(ref1.declared_type)
-					puts "#{ref1.scope} #{ref1.name}: #{ref1.declared_type} = #{ref2.declared_type}"
+					# puts "#{ref1.scope} #{ref1.name}: #{ref1.declared_type} = #{ref2.declared_type}"
 					ref1.declared_type = ref2.declared_type
 				elsif ref2.declared_type == nil or isArbitraryType(ref2.declared_type)
-					puts "#{ref1.scope} #{ref1.name}: #{ref1.declared_type} = #{ref2.declared_type}"
+					# puts "#{ref1.scope} #{ref1.name}: #{ref1.declared_type} = #{ref2.declared_type}"
 					ref2.declared_type = ref1.declared_type
 				end
 			end

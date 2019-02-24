@@ -7,8 +7,13 @@ class E extends B
 f = (a :- A,b :- B) ->
 	a
 
-g = (a :- A, b :- B) ->
+g = (a, b :- B) ->
 	b
+
+m = g(new A, b0)
+
+b0 :- B
+
 
 m :- A
 n :- B

@@ -12,6 +12,7 @@ g = (a, b, c) ->
 h = (x :- int, y :- double, z :- A) ->
 	x * x
 
-j  = (a :- D, b :- D, c :- C) ->
+j  = (a :- D, b :- D, c :- C, d :- D) ->
 	1
+	d = b
 	b

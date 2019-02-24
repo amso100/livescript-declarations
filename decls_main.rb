@@ -37,7 +37,7 @@ def fill_inferred_types_in_references(var_references, inferred_locals, inferred_
 	fix_hash = Hash.new
 
 	var_references.each do |ref|
-		puts "#{ref.name}, #{ref.line_found}, #{ref.kind}"
+		# puts "#{ref.name}, #{ref.line_found}, #{ref.kind}"
 		scopeno = ref.scope
 		if ref.kind == "func"
 			inferred_funcs.each_pair do |funcName, func|
@@ -67,7 +67,7 @@ def fill_inferred_types_in_references(var_references, inferred_locals, inferred_
 		else # regular local variable, might be reference to global or func though.
 			found = false
 			inferred_locals.each do |local_var|
-				puts "local #{local_var.name}, #{local_var.scope}"
+				# puts "local #{local_var.name}, #{local_var.scope}"
 				if ref.name == local_var.name and ref.scope == local_var.scope
 					if isArbitraryType(ref.declared_type)
 						fix_hash[ref.declared_type] = local_var.inferred_type
@@ -79,7 +79,7 @@ def fill_inferred_types_in_references(var_references, inferred_locals, inferred_
 			end
 			if not found
 				inferred_globs.each do |global_var|
-					puts "global #{global_var.name}"
+					# puts "global #{global_var.name}"
 					if ref.name == global_var.name and ref.kind == "global"
 						if isArbitraryType(ref.declared_type)
 							fix_hash[ref.declared_type] = global_var.inferred_type
@@ -150,62 +150,6 @@ def fill_types_from_references(local_vars, global_vars, var_references)
 		end
 	end
 end
-
-# puts "Inferred Variables:"
-# inferred_locals.each do |var|
-# 	declared_funcs.each_pair do |name, funcData|
-# 		if var.scope == funcData.scope
-# 			puts "\tinferred #{var.name} [in function #{funcData.name}] as type #{var.inferred_type}"
-# 		end
-# 	end
-# end
-# inferred_globs.each do |var|
-# 	puts "\tinferred #{var.name} [global] as type #{var.inferred_type}"
-# end
-# inferred_funcs.each_pair do |name, func|
-# 	puts "\tinferred #{func.name} [function] as type #{get_function_type(func)}"
-# end
-
-# puts ""
-
-# puts "Functions:"
-# declared_funcs.each_pair do |key, value|
-# 	funcType = declared_funcs[value.name].return_type
-# 	funcType = getDeclared_function_type(value, funcType)
-# 	puts "\tline #{value.lineno+1}: \"#{value.name}\", function, #{funcType}"
-# 	# puts "Function name: #{value.name}"
-# 	# puts "Function Scope: #{value.scope}"
-# 	# puts "Arg types: #{value.args.map {|arg| arg.type}}"
-# 	# if value.return_type != nil
-# 	# 	puts "Return Type: #{value.return_type}"
-# 	# else
-# 	# 	puts "Return Type: Could not be determined."
-# 	# end
-# 	# puts ""
-# end
-
-# # puts "Globals:"
-# # declared_globs.each_pair do |key, value|
-# # 	puts "Global name: #{value.name}"
-# # 	puts "Global Type: #{value.declared_type}"
-# # 	puts "Global line: #{value.lineno+1}"
-# # 	puts ""
-# # end
-
-# # puts "Local Variables:"
-# # declared_locals.each_pair do |key, data|
-# # 	puts "Local variables in #{key}:"
-# # 	data.each_pair do |k, value|
-# # 		puts "\tVar name: #{value.name}"
-# # 		puts "\tVar Scope: #{value.scope}"
-# # 		puts "\tVar Type: #{value.declared_type}"
-# # 		puts "\tVar line: #{value.lineno+1}"
-# # 		puts "\t----------"
-# # 	end
-# # 	puts "------------------"
-# # end
-
-# # puts ""
 
 if ARGV.size == 0
 	puts("File name missing")
@@ -299,12 +243,9 @@ ast_j['lines'].each {|line|
 # pp ast_j
 ast = Ast.new ast_j
 
-# puts "Completion Results:"
-# completionHash.each_pair do |arb, comp|
-# 	puts "#{arb} =:= #{comp}"
-# end
-
-# ast.add_completion_subtype_equations(completionHash)
+# ---------- In this line the declaration results are added -----
+ast.add_completion_subtype_equations(completionHash)
+# ---------------------------------------------------------------
 
 ast.get_vars
 puts "--------------------------------------------------------------------------------------------------------------"

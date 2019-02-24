@@ -18,7 +18,7 @@
 #	var_references: List of type VariableReference
 #
 #	changed: Have any of the structures changed during the pass, to determine if done or not.
-def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, var_references, globals_exist, class_names)
+def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, var_references, globals_exist)
 	changed = false
 
 	text.gsub!(/\r\n?/, "\n")
@@ -32,7 +32,9 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 	allVariableTypes = Array.new
 
 	setup_variable_types(allVariableTypes, local_vars, global_vars)
+	allVariableTypes = allVariableTypes + get_all_class_names(text)
 	# puts "Types: #{allVariableTypes}"
+
 
 	
 
@@ -248,7 +250,6 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 						# if current_scope.keys.include?(var) and global_vars.keys.include?(var)
 						# 	current_scope.delete(var)
 						# end
-
 						if current_scope.keys.include?(var)
 							# if global_vars[var] != nil and current_scope[var] != nil
 							# 	current_scope[var].declared_type = global_vars[var].declared_type
@@ -286,7 +287,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 								end
 							end
 							if need
-								current_scope[var] = TypeDeclaredVar.new(var, "T'-#{aribtrary_count}", func_name, -1, scopeno)
+								current_scope[var] = TypeDeclaredVar.new(var, "T'-#{aribtrary_count}", func_name, -2, scopeno)
 								aribtrary_count += 1
 							end
 						end
@@ -388,11 +389,18 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 		end
 	end 
 
-	puts allVariableTypes
+	# puts allVariableTypes
 	var_references.reject! { |ref| allVariableTypes.include? ref.name }
 	# puts "#{global_vars["a"].declared_type}"
 
 	# fix_globals_identified_local(local_vars, global_vars, var_references)
+
+	# var_references.each do |data|
+	# 	if data.declared_type == nil
+	# 		data.declared_type = "func"
+	# 	end
+	# 	puts "\tline #{data.line_found+1}: \"#{data.name}\", #{data.kind} [declared: line #{data.line_declared+1}, as #{data.declared_type}]"
+	# end
 
 	return [functions_dict, global_vars, local_vars, var_references, changed]
 end

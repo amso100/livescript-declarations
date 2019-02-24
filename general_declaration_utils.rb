@@ -40,7 +40,7 @@ end
 
 def update_relevant_global_references(allReferences, varName, lineDeclared, typeDeclared)
 	allReferences.each do |ref|
-		if ref.kind == "local" and ref.name == varName #and isArbitraryType()
+		if ref.kind == "local" and ref.name == varName and isArbitraryType(ref.declared_type)
 			# puts "#{ref.name} : #{ref.kind} : #{ref.scope} : #{ref.declared_type}"
 			ref.kind = "global"
 			ref.declared_type = typeDeclared
@@ -96,8 +96,10 @@ end
 def get_all_class_names(program_text)
 	names = Array.new
 	program_text.each_line do |line|
-		if line =~ /class .+/ or line =~ /class .+ extends .+/
-			className = line[/ .+ /].strip
+		if line =~ /class .+$/
+			className = line[/ .+ /]
+			className.sub! "extends", ""
+			className.strip!
 			names << className
 		end
 	end
