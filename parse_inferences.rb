@@ -1,12 +1,21 @@
-def parse_function_infers(program)
-	aux = remove_decls(program)
-	f_in = File.new("for_params.ls", "w")
-	f_in.write(aux)
-	f_in.close()
-	f_inferred = `ruby type_infers.rb for_params.ls`
+def parse_function_infers(program, is_inferred = false)
+	f_inferred = ""
+	if not is_inferred
+		aux = remove_decls(program)
+		f_in = File.new("for_params.ls", "w")
+		f_in.write(aux)
+		f_in.close()
+		f_inferred = `ruby type_infers.rb for_params.ls`
+	else
+		f_inferred = program
+	end
+
 	functions_dict = Hash.new
 	# puts f_inferred
 	globals = []
+	if is_inferred
+		f_inferred = f_inferred.split("_AFTER_")[1].split("vars")[1]
+	end
 	global_scope = f_inferred.split("-----\n")[1]
 	global_scope.each_line do |line|
 		if line =~ /->/ # Function line
@@ -22,23 +31,33 @@ def parse_function_infers(program)
 			end
 		end
 	end
-	File.delete("for_params.ls")
+
+	if not is_inferred
+		File.delete("for_params.ls")
+	end
+
 	return functions_dict
 end
 
-def parse_locals_globals_infers(program)
+def parse_locals_globals_infers(program, is_inferred = false)
 	res = []
 	tmp = []
 	globals = []
 	no_globals = false
 	i = 0
-	
-	aux = remove_decls(program)
-	f_in = File.new("for_params.ls", "w")
-	f_in.write(aux)
-	f_in.close()
-
-	f_inferred = `ruby type_infers.rb for_params.ls`
+	f_inferred = ""
+	if not is_inferred
+		aux = remove_decls(program)
+		f_in = File.new("for_params.ls", "w")
+		f_in.write(aux)
+		f_in.close()
+		f_inferred = `ruby type_infers.rb for_params.ls`
+	else
+		f_inferred = program
+	end
+	if is_inferred
+		f_inferred = f_inferred.split("_AFTER_")[1].split("vars")[1]
+	end
 	scopes = f_inferred.split("-----\n")
 	scopes.each do |scope|
 		# puts scope
@@ -58,8 +77,10 @@ def parse_locals_globals_infers(program)
 		# puts "444"
 		# puts i
 		scope.split("\n").each do |var|
-			# puts var
 			if var.include? "->" or var =~ /- [A-Za-z0-9_]+ -/ # Don't want class/funcs declarations
+				next
+			end
+			if var.split(" : ").length < 2
 				next
 			end
 			name = var.split(" : ")[0].strip
@@ -92,7 +113,9 @@ def parse_locals_globals_infers(program)
 
 	res = [res, globals]
 
-	File.delete("for_params.ls")
+	if not is_inferred
+		File.delete("for_params.ls")
+	end
 
 	return res
 end
