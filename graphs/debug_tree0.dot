@@ -1,47 +1,47 @@
 digraph RGL__DirectedAdjacencyGraph {
-    Z [
+    "B (T-2)" [
         fontsize = 8,
-        label = Z
+        label = "B (T-2)"
     ]
 
-    "Z (T-23)" [
+    "B (T-4)" [
         fontsize = 8,
-        label = "Z (T-23)"
+        label = "B (T-4)"
     ]
 
-    "Z (T-11)" [
+    "A (T-1)" [
         fontsize = 8,
-        label = "Z (T-11)"
+        label = "A (T-1)"
     ]
 
-    "Z (T-26)" [
+    "A (T-3)" [
         fontsize = 8,
-        label = "Z (T-26)"
+        label = "A (T-3)"
     ]
 
-    Y [
+    B [
         fontsize = 8,
-        label = Y
+        label = B
     ]
 
-    "Y (T-10)" [
+    A [
         fontsize = 8,
-        label = "Y (T-10)"
+        label = A
     ]
 
-    Z -> "Z (T-23)" [
+    "B (T-2)" -> "B (T-4)" [
         fontsize = 8
     ]
 
-    Z -> "Z (T-11)" [
+    "A (T-1)" -> "A (T-3)" [
         fontsize = 8
     ]
 
-    "Z (T-26)" -> Z [
+    B -> "B (T-2)" [
         fontsize = 8
     ]
 
-    Y -> "Y (T-10)" [
+    A -> "A (T-1)" [
         fontsize = 8
     ]
 }
