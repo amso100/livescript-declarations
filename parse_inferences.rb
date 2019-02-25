@@ -77,6 +77,7 @@ def parse_locals_globals_infers(program, is_inferred = false)
 		# puts "444"
 		# puts i
 		scope.split("\n").each do |var|
+			# puts "#{var} (#{i})"
 			if var.include? "->" or var =~ /- [A-Za-z0-9_]+ -/ # Don't want class/funcs declarations
 				next
 			end
