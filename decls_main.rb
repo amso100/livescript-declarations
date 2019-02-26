@@ -191,6 +191,11 @@ inferred_globs  = res_var_infers[1]
 inferred_funcs  = parse_function_infers(ls_program)
 
 fill_types_from_references(declared_locals, declared_globs, res_references)
+fill_inferred_types_in_references(res_references, inferred_locals, inferred_globs, inferred_funcs, declared_funcs)
+
+# res_references.each do |ref|
+# 	puts "#{ref.name}: #{ref.inferred_type} =:= #{ref.declared_type}"
+# end
 
 completionHash = try_to_complete_missing_types(inferred_locals, inferred_globs, inferred_funcs, declared_locals, declared_globs, declared_funcs, res_references)
 

@@ -312,6 +312,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 						found_type = check_equals_statement[1]
 						var_references.each do |ref|
 							if ref.kind == "global" and ref.name == assigned_name and (ref.declared_type == nil or isArbitraryType(ref.declared_type))
+								puts "#{assigned_name} :- #{found_type}"
 								ref.declared_type = found_type
 							end
 						end
