@@ -1,22 +1,7 @@
 digraph RGL__DirectedAdjacencyGraph {
-    "B (T-2)" [
+    "B (T-20)" [
         fontsize = 8,
-        label = "B (T-2)"
-    ]
-
-    "B (T-4)" [
-        fontsize = 8,
-        label = "B (T-4)"
-    ]
-
-    "A (T-1)" [
-        fontsize = 8,
-        label = "A (T-1)"
-    ]
-
-    "A (T-3)" [
-        fontsize = 8,
-        label = "A (T-3)"
+        label = "B (T-20)"
     ]
 
     B [
@@ -24,24 +9,53 @@ digraph RGL__DirectedAdjacencyGraph {
         label = B
     ]
 
+    "B (T-6)" [
+        fontsize = 8,
+        label = "B (T-6)"
+    ]
+
     A [
         fontsize = 8,
         label = A
     ]
 
-    "B (T-2)" -> "B (T-4)" [
+    "A (T-12)" [
+        fontsize = 8,
+        label = "A (T-12)"
+    ]
+
+    "A (T-5)" [
+        fontsize = 8,
+        label = "A (T-5)"
+    ]
+
+    C [
+        fontsize = 8,
+        label = C
+    ]
+
+    "C (T-7)" [
+        fontsize = 8,
+        label = "C (T-7)"
+    ]
+
+    "B (T-20)" -> B [
         fontsize = 8
     ]
 
-    "A (T-1)" -> "A (T-3)" [
+    B -> "B (T-6)" [
         fontsize = 8
     ]
 
-    B -> "B (T-2)" [
+    A -> "A (T-12)" [
         fontsize = 8
     ]
 
-    A -> "A (T-1)" [
+    A -> "A (T-5)" [
+        fontsize = 8
+    ]
+
+    C -> "C (T-7)" [
         fontsize = 8
     ]
 }

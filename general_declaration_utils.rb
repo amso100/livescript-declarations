@@ -97,8 +97,13 @@ def get_all_class_names(program_text)
 	names = Array.new
 	program_text.each_line do |line|
 		if line =~ /class .+$/
-			className = line[/ .+ /]
-			className.sub! "extends", ""
+			className = ""
+			if line.include? "extends"
+				className = line[/ .+ /]
+				className.sub! "extends", ""
+			else
+				className = line[/ .+$/]
+			end
 			className.strip!
 			names << className
 		end
