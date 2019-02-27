@@ -11,7 +11,7 @@ class Ast
 
 	def add_completion_subtype_equations(completionHash)
 		completionHash.each_pair do |arbitraryType, completeVal|
-			puts "#{arbitraryType} =:= #{completeVal}"
+			# puts "#{arbitraryType} =:= #{completeVal}"
 			eq1 = Equation.new(TypeVar.new(arbitraryType), Constant.new(completeVal))
 			eq2 = Equation.new(Constant.new(completeVal), TypeVar.new(arbitraryType))
 			Scope.unifier.add_equation(eq1)

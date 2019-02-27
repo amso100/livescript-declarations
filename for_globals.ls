@@ -1,7 +1,10 @@
-class A
-class B
+f = (x  ) ->
+	b = a
+	c = b
+	a = c
+	 
 
- 
- 
-c = a
-d = b
+g = (x  ) ->
+	b = a
+	a = b
+	 

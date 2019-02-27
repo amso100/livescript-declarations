@@ -153,7 +153,8 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 			declarations = get_line_declarations(line, allVariableTypes)
 			declarations.each_pair do |name, type|
 				if not global_vars.keys.include?(name) and not allVariableTypes.include?(name)
-					global_vars[name] = TypeDeclaredVar.new(name, type, "", ind, scopeno)
+					global_vars[name] = TypeDeclaredVar.new(name, type, "", ind, 0)
+					fix_references_types(var_references, name, 0, type)
 					changed = true
 				end
 				# puts "#{name} :- #{type}"
@@ -298,6 +299,8 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 				declarations.each_pair do |name, type|
 					if not global_vars.include?(name) and not allVariableTypes.include?(name)
 						global_vars[name] = TypeDeclaredVar.new(name, type, "", ind, scopeno)
+						# puts "#{name} :- #{type}"
+						fix_references_types(var_references, name, 0, type)
 						changed = true
 					end
 					# puts "#{name} :- #{type}"
@@ -312,7 +315,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 						found_type = check_equals_statement[1]
 						var_references.each do |ref|
 							if ref.kind == "global" and ref.name == assigned_name and (ref.declared_type == nil or isArbitraryType(ref.declared_type))
-								puts "#{assigned_name} :- #{found_type}"
+								# puts "#{assigned_name} :- #{found_type}"
 								ref.declared_type = found_type
 							end
 						end
@@ -340,8 +343,13 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 								cls_name = line[5..-1][/[A-Z]+[A-Za-z]/]
 								allVariableTypes << cls_name
 							else
-								ref = VariableReference.new(var, -2, ind, "T'-#{aribtrary_count}", "global", 0)
-								aribtrary_count += 1
+								possible_type = find_type_in_references(var_references, var, 0)
+								if possible_type != nil
+									ref = VariableReference.new(var, -2, ind, possible_type, "global", 0)
+								else
+									ref = VariableReference.new(var, -2, ind, "T'-#{aribtrary_count}", "global", 0)
+									aribtrary_count += 1
+								end
 								if add_variable_reference(var_references, ref)
 									changed = true
 								end

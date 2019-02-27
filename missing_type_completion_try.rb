@@ -25,7 +25,7 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 
 	# puts "Global completion:"
 	inferredGlobals.each do |inferredVar|
-		puts "#{inferredVar.name}, #{inferredVar.inferred_type}"
+		# puts "#{inferredVar.name}, #{inferredVar.inferred_type}"
 		if not isArbitraryType(inferredVar.inferred_type)
 			# puts "Type of #{inferredVar.name} is #{inferredVar.inferred_type}"
 			next
@@ -35,7 +35,7 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 		if match == nil or match == ""
 			# puts "#{inferredVar.name}: #{inferredVar.inferred_type} =:= NIL"
 		else
-			puts "#{inferredVar.name}: #{inferredVar.inferred_type} =:= #{match.declared_type}"
+			# puts "#{inferredVar.name}: #{inferredVar.inferred_type} =:= #{match.declared_type}"
 			add_declared_type_to_hash(completionHash, inferredVar.inferred_type, match.declared_type)
 		end
 	end
@@ -70,7 +70,7 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 			next
 		end
 		if isArbitraryType(ref.inferred_type) and not isArbitraryType(ref.declared_type)
-			puts "#{ref.name}: #{ref.inferred_type} =:= #{ref.declared_type}"
+			# puts "#{ref.name}: #{ref.inferred_type} =:= #{ref.declared_type}"
 			add_declared_type_to_hash(completionHash, ref.inferred_type, ref.declared_type)
 		end
 	end
@@ -84,7 +84,7 @@ end
 
 def add_declared_type_to_hash(completionHash, inf_type, dec_type)
 	if isArbitraryType(dec_type)
-		puts "Warning! Completion of arbitrary type! (#{inf_type} =:= #{dec_type})"
+		# puts "Warning! Completion of arbitrary type! (#{inf_type} =:= #{dec_type})"
 		return
 	end
 

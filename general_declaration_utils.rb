@@ -125,6 +125,33 @@ def fix_globals_identified_local(local_vars, global_vars, var_references)
 	end
 end
 
+def fix_references_types(var_references, varName, scope, actualType)
+	currentType = ""
+	var_references.each do |ref|
+		if ref.name == varName and ref.scope == scope and isArbitraryType(ref.declared_type)
+			currentType = ref.declared_type
+			break
+		end
+	end
+	if currentType == ""
+		return
+	end
+	var_references.each do |ref|
+		if ref.scope == scope and ref.declared_type == currentType
+			ref.declared_type = actualType
+		end
+	end
+end
+
+def find_type_in_references(var_references, var_name, scope)
+	var_references.each do |ref|
+		if ref.name == var_name and ref.scope == scope
+			return ref.declared_type
+		end
+	end
+	return nil
+end
+
 # def fix_accidental_local_references(varName, varData, var_references, locals)
 # 	var_references.each do |ref|
 # 		if ref.kind == "local" and ref.scope == varData.scope and ref.name == varName

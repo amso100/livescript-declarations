@@ -4,4 +4,9 @@ f = ->
 	c = a
 	a :- A
 
-x = 1
+x = y
+y = x
+z = w
+w = z
+y :- Y
+z :- Z
