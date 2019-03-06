@@ -68,7 +68,31 @@ def global_variables_exist(text)
 		if line.include? "->" or line =~ /- [A-Za-z0-9_]+ -/
 			next
 		end
+		File.delete("for_globals.ls")
 		return true
 	end
+	File.delete("for_globals.ls")
 	return false
 end
+
+# def get_global_variable_names(text)
+# 	names = Array.new
+# 	f_in = File.open("for_globals.ls", "w")
+# 	aux = remove_decls(text)
+# 	f_in.write(aux)
+# 	f_in.close()
+# 	uninferred_vars_text = `ruby type_infers.rb for_globals.ls`
+# 	global_scope = uninferred_vars_text.split("-----\n")[1]
+# 	global_scope.each_line do |line|
+# 		if line.include? "->" or line =~ /- [A-Za-z0-9_]+ -/
+# 			next
+# 		end
+# 		if line.split(" : ").length < 2
+# 			next
+# 		end
+# 		name = line.split(" : ")[0].strip
+# 		names << name
+# 	end
+# 	File.delete("for_globals.ls")
+# 	return names
+# end

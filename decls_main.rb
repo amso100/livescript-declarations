@@ -246,6 +246,8 @@ ast_j['lines'].each {|line|
 # pp ast_j
 ast = Ast.new ast_j
 
+# ast.get_vars
+
 # ---------- In this line the declaration results are added -----
 ast.add_completion_subtype_equations(completionHash)
 # ---------------------------------------------------------------
@@ -258,12 +260,6 @@ ast.get_vars
 puts "--------------------------------------------------------------------------------------------------------------"
 # pp ast
 puts "--------------------------------------------------------------------------------------------------------------"
-
-# class ReferenceStorage
-# 	def initialize(res_references)
-# 		@@refs = res_references
-# 	end
-# end
 
 ls_program_inferred = $stdout.string
 
