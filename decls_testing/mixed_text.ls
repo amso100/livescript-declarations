@@ -29,5 +29,5 @@ j = (a) ->
 	m
 	m :- M
 
+
 x = j(new A)
-x :- M

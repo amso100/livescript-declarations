@@ -125,7 +125,7 @@ def fix_globals_identified_local(local_vars, global_vars, var_references)
 	end
 end
 
-def fix_references_types(var_references, varName, scope, actualType)
+def fix_references_types(var_references, varName, scope, actualType, local_vars, global_vars, funcs_dict)
 	currentType = ""
 	var_references.each do |ref|
 		if ref.name == varName and ref.scope == scope and isArbitraryType(ref.declared_type)
@@ -133,12 +133,30 @@ def fix_references_types(var_references, varName, scope, actualType)
 			break
 		end
 	end
+	puts "prev #{varName} :- #{currentType}"
 	if currentType == ""
 		return
 	end
 	var_references.each do |ref|
 		if ref.scope == scope and ref.declared_type == currentType
 			ref.declared_type = actualType
+		end
+	end
+	local_vars.each_pair do |func, vars|
+		vars.each_pair do |name, data|
+			if data.declared_type == currentType
+				data.declared_type = actualType
+			end
+		end
+	end
+	global_vars.each_pair do |name, data|
+		if data.declared_type == currentType
+			data.declared_type = actualType
+		end
+	end
+	funcs_dict.each do |name, data|
+		if data.return_type == currentType
+			data.return_type = actualType
 		end
 	end
 end
