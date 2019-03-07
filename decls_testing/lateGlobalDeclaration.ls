@@ -15,5 +15,5 @@ m = g(new A, b0)
 b0 :- B
 
 
-m :- A
+
 n :- B

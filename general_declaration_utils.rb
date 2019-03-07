@@ -133,7 +133,7 @@ def fix_references_types(var_references, varName, scope, actualType, local_vars,
 			break
 		end
 	end
-	puts "prev #{varName} :- #{currentType}"
+	# puts "prev #{varName} :- #{currentType}"
 	if currentType == ""
 		return
 	end

@@ -196,6 +196,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 						end
 						# puts "Line #{ind}: Var #{var} is function defined at line #{functions_dict[var].lineno}"
 					else
+						possible_type = find_type_in_references(var_references, var, 0)
 						if check_equals_statement != nil and found_type != nil and assigned_name == var
 							ref = VariableReference.new(var, -2, ind, found_type, "global", 0)
 						elsif possible_type != nil
