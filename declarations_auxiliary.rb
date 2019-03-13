@@ -261,6 +261,9 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 										arg.type = found_type
 									end
 								end
+								if found_type != nil and not isArbitraryType(found_type)
+									changed = true
+								end
 							end
 
 						end
@@ -344,6 +347,9 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 						var_references.each do |ref|
 							if ref.kind == "global" and ref.name == assigned_name and (ref.declared_type == nil or isArbitraryType(ref.declared_type))
 								ref.declared_type = found_type
+								if found_type != nil and not isArbitraryType(found_type)
+									changed = true
+								end
 							end
 						end
 					end
