@@ -1,15 +1,51 @@
 digraph RGL__DirectedAdjacencyGraph {
-    "T-16" [
+    "T-57" [
         fontsize = 8,
-        label = "T-16"
+        label = "T-57"
     ]
 
-    "T-15" [
+    int [
         fontsize = 8,
-        label = "T-15"
+        label = int
     ]
 
-    "T-16" -> "T-15" [
+    "T-62" [
+        fontsize = 8,
+        label = "T-62"
+    ]
+
+    "T-61" [
+        fontsize = 8,
+        label = "T-61"
+    ]
+
+    "T-56" [
+        fontsize = 8,
+        label = "T-56"
+    ]
+
+    "T-52" [
+        fontsize = 8,
+        label = "T-52"
+    ]
+
+    "T-57" -> int [
+        fontsize = 8
+    ]
+
+    int -> "T-56" [
+        fontsize = 8
+    ]
+
+    int -> "T-52" [
+        fontsize = 8
+    ]
+
+    "T-62" -> int [
+        fontsize = 8
+    ]
+
+    "T-61" -> int [
         fontsize = 8
     ]
 }
