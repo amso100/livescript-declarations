@@ -33,16 +33,10 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 
 	setup_variable_types(allVariableTypes, local_vars, global_vars)
 	allVariableTypes = allVariableTypes + get_all_class_names(text)
-	# puts "Types: #{allVariableTypes}"
-
-
 	
-
 	if globals_exist
-		# puts "Globals"
 		scopeno = 1
 	else
-		# puts "No globals"
 		scopeno = 0
 	end
 
@@ -60,11 +54,8 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 				ret_type = parse_for_type(prev_line, local_vars, global_vars, func_name, functions_dict, var_references)
 				if ret_type != nil
 					functions_dict[func_name].return_type = ret_type
-				else
-					# puts "Return type of function #{func_name} could not be determined."
 				end
 			end
-			# puts "At line #{ind}, scope is #{scopeno}"
 
 			if not first_function
 				scopeno = max_scope + 1
@@ -90,11 +81,9 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 					a = m[0].scan(/([A-Za-z]{1}[A-Za-z0-9_]*)/)
 					
 					if a.length > 1
-						# puts "var is #{a[0][0]}, Type is #{a[1][0]}"
 						local_vars[func_name][a[0][0]] = TypeDeclaredVar.new(a[0][0], a[1][0], func_name, ind, scopeno)
 						functions_dict[func_name].args << FunctionParameter.new(a[0][0], a[1][0])
 					else
-						# puts "var is #{a[0][0]}"
 						local_vars[func_name][a[0][0]] = TypeDeclaredVar.new(a[0][0], "T'-#{aribtrary_count}", func_name, ind, scopeno)
 						functions_dict[func_name].args << FunctionParameter.new(a[0][0], "T'-#{aribtrary_count}")
 						aribtrary_count += 1
@@ -102,8 +91,6 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 				end
 				functions_dict[func_name].initialized = true
 			end
-			# puts line
-			# puts "scope = #{scopeno}"
 
 		# Test for functions without any arguments
 		elsif lineIsNoParamsFunctionStart(line)
@@ -111,8 +98,6 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 				ret_type = parse_for_type(prev_line, local_vars, global_vars, func_name, functions_dict, var_references)
 				if ret_type != nil
 					functions_dict[func_name].return_type = ret_type
-				else
-					#puts "Return type of function #{func_name} could not be determined."
 				end
 			end
 
@@ -134,8 +119,6 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 					functions_dict[func_name].args << FunctionParameter.new("", "unit")
 				end
 			end
-			# puts line
-			# puts "scope = #{scopeno}"
 
 		# If exited scope and previous line is not null, parse
 		elsif prev_line != nil and count_tabs_at_start(line) == 0 and count_tabs_at_start(prev_line) > 0
@@ -143,25 +126,17 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 			ret_type = parse_for_type(prev_line, local_vars, global_vars, func_name, functions_dict, var_references)
 			if ret_type != nil
 				functions_dict[func_name].return_type = ret_type
-			else
-				#puts "Return type of function #{func_name} could not be determined."
 			end
 			in_function = false
 			scopeno = 0
-			# puts line
-			# puts "scope = #{scopeno}"
 
 			declarations = get_line_declarations(line, allVariableTypes)
 			declarations.each_pair do |name, type|
-				# puts "#{name} :- #{type}"
 				if not global_vars.keys.include?(name) and not allVariableTypes.include?(name)
 					global_vars[name] = TypeDeclaredVar.new(name, type, "", ind, 0)
 					fix_references_types(var_references, name, 0, type, local_vars, global_vars, functions_dict)
 					changed = true
 				end
-				# puts "#{name} :- #{type}"
-				# puts "111"
-				# puts "#{local_vars["g"]["x1"].declared_type}"
 				update_relevant_global_references(var_references, name, ind, type)
 			end
 
@@ -171,10 +146,8 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 				if check_equals_statement != nil
 					assigned_name = check_equals_statement[0]
 					found_type = check_equals_statement[1]
-					# puts "#{assigned_name} :- #{found_type}"
 					var_references.each do |ref|
 						if ref.kind == "global" and ref.name == assigned_name and (ref.declared_type == nil or isArbitraryType(ref.declared_type))
-							# puts "#{assigned_name} :- #{found_type}"
 							ref.declared_type = found_type
 						end
 					end
@@ -184,17 +157,14 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 				vars.each do |var|
 					if global_vars.keys.include?(var)
 						ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global", 0)
-						# puts "ref to #{var} at line #{ind}"
 						if add_variable_reference(var_references, ref)
 							changed = true
 						end
-						# puts "Line #{ind}: Var #{var} is global declared at #{global_vars[var].lineno}"
 					elsif functions_dict.keys.include?(var)
 						ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func", 0)
 						if add_variable_reference(var_references, ref)
 							changed = true
 						end
-						# puts "Line #{ind}: Var #{var} is function defined at line #{functions_dict[var].lineno}"
 					else
 						possible_type = find_type_in_references(var_references, var, 0)
 						if check_equals_statement != nil and found_type != nil and assigned_name == var
@@ -216,10 +186,6 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 		# and want to search for declarations
 		else
 			if in_function == true
-				# puts line
-				# puts "scope = #{scopeno}"
-				# puts line
-				# puts "Regular function line"
 				declarations = get_line_declarations(line, allVariableTypes)
 				declarations.each_pair do |name, type|
 					if local_vars[func_name][name] == nil or isArbitraryType(local_vars[func_name][name].declared_type)
@@ -245,15 +211,12 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 
 				if declarations.size == 0
 					# Check if line has '=' statement
-					# puts "----------------------------------"
-					# puts "local parse in #{func_name}"
 					check_equals_statement = local_parse_for_type(line, local_vars, func_name, var_references, scopeno, functions_dict, ind)
 					if check_equals_statement != nil
 						assigned_name = check_equals_statement[0]
 						found_type = check_equals_statement[1]
 						var_references.each do |ref|
 							if ref.kind == "local" and ref.name == assigned_name and ref.scope == scopeno and  isArbitraryType(ref.declared_type)
-								# puts "update #{func_name}-> #{ref.scope}: #{ref.declared_type} = #{found_type}"
 								ref.declared_type = found_type
 								current_function_args = functions_dict[func_name].args
 								current_function_args.each do |arg|
@@ -272,22 +235,14 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 					# Identify all vars in line, and if found in dictionary, print a "reference".
 					current_scope = local_vars[func_name]
 					vars = get_line_variables(line, allVariableTypes)
-					# puts "#{line} : vars = #{vars}"
 					vars.each do |var|
-						# if current_scope.keys.include?(var) and global_vars.keys.include?(var)
-						# 	current_scope.delete(var)
-						# end
 						if current_scope.keys.include?(var)
-							# if global_vars[var] != nil and current_scope[var] != nil
-							# 	current_scope[var].declared_type = global_vars[var].declared_type
-							# end
 							if current_scope[var].declared_type != ""
 								ref = VariableReference.new(var, current_scope[var].lineno, ind, current_scope[var].declared_type, "local", scopeno, func_name)
 								if add_variable_reference(var_references, ref)
 									changed = true
 								end
 							end
-							# puts "Line #{ind}: Var #{var} is local  declared at line #{current_scope[var].lineno}"
 						elsif global_vars.keys.include?(var)
 							if global_vars[var].declared_type != ""
 								ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global", 0)
@@ -295,20 +250,14 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 									changed = true
 								end
 							end
-							# if global_vars[var] != nil and current_scope[var] != nil
-							# 	current_scope[var].declared_type = global_vars[var].declared_type
-							# end
-							# puts "Line #{ind}: Var #{var} is global declared at line #{global_vars[var].lineno}"
 						elsif functions_dict.keys.include?(var)
 							ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func", 0)
 							if add_variable_reference(var_references, ref)
 								changed = true
 							end
-							# puts "Line #{ind}: Var #{var} is function defined at line #{functions_dict[var].lineno}"
 						else
 							need = true
 							var_references.each do |ref|
-								# puts "#{ref.name} =?= #{var} ; #{ref.kind} ; #{ref.line_found}"
 								if ref.name == var and ref.kind == "global"
 									need = false
 								end
@@ -325,11 +274,9 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 				declarations.each_pair do |name, type|
 					if not global_vars.include?(name) and not allVariableTypes.include?(name)
 						global_vars[name] = TypeDeclaredVar.new(name, type, "", ind, scopeno)
-						# puts "#{name} :- #{type}"
 						fix_references_types(var_references, name, 0, type, local_vars, global_vars, functions_dict)
 						changed = true
 					end
-					# puts "#{name} :- #{type}"
 					update_relevant_global_references(var_references, name, ind, type)
 				end
 
@@ -343,7 +290,6 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 						assigned_name = check_equals_statement[0]
 						found_type = check_equals_statement[1]
 						funcName = check_equals_statement[2]
-						# puts "#{assigned_name} :- #{found_type}"
 						var_references.each do |ref|
 							if ref.kind == "global" and ref.name == assigned_name and (ref.declared_type == nil or isArbitraryType(ref.declared_type))
 								ref.declared_type = found_type
@@ -356,21 +302,16 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 
 					vars = get_line_variables(line, allVariableTypes)
 					vars.each do |var|
-						# puts "Found global var #{var}"
 						if global_vars.keys.include?(var)
-							# puts "Found declared type for it: #{global_vars[var].declared_type}"
 							ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global", 0)
-							# puts "ref to #{var} at line #{ind}"
 							if add_variable_reference(var_references, ref)
 								changed = true
 							end
-							# puts "Line #{ind}: Var #{var} is global declared at #{global_vars[var].lineno}"
 						elsif functions_dict.keys.include?(var)
 							ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func", 0)
 							if add_variable_reference(var_references, ref)
 								changed = true
 							end
-							# puts "Line #{ind}: Var #{var} is function defined at line #{functions_dict[var].lineno}"
 						else
 							if line.include? "class "
 								cls_name = line[5..-1][/[A-Z]+[A-Za-z]/]
@@ -434,11 +375,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 		end
 	end 
 
-	# puts allVariableTypes
 	var_references.reject! { |ref| allVariableTypes.include? ref.name }
-	# puts "#{global_vars["a"].declared_type}"
-
-	# fix_globals_identified_local(local_vars, global_vars, var_references)
 
 	# var_references.each do |data|
 	# 	if data.declared_type == nil

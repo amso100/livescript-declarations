@@ -70,7 +70,6 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 			next
 		end
 		if isArbitraryType(ref.inferred_type) and not isArbitraryType(ref.declared_type)
-			# puts "#{ref.name}: #{ref.inferred_type} =:= #{ref.declared_type}"
 			add_declared_type_to_hash(completionHash, ref.inferred_type, ref.declared_type)
 		end
 	end

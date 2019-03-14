@@ -14,7 +14,6 @@ def add_variable_reference(allReferences, newRef)
 		end
 	end
 	if not found
-		# puts "adding reference to var #{newRef.name.split("")}"
 		allReferences << newRef
 		return true
 	end
@@ -41,7 +40,6 @@ end
 def update_relevant_global_references(allReferences, varName, lineDeclared, typeDeclared)
 	allReferences.each do |ref|
 		if ref.kind == "local" and ref.name == varName and isArbitraryType(ref.declared_type)
-			# puts "#{ref.name} : #{ref.kind} : #{ref.scope} : #{ref.declared_type}"
 			ref.kind = "global"
 			ref.declared_type = typeDeclared
 			ref.line_declared = lineDeclared
@@ -64,7 +62,6 @@ def isArbitraryType(typeName)
 end
 
 def find_inferred_var_in_declared(var, declaredHash)
-	# puts "Searching for #{var.name} (scope #{var.scope})"
 	declaredHash.each_pair do |funcName, localVars|
 		if localVars.size == 0
 			next
@@ -115,11 +112,8 @@ end
 def fix_globals_identified_local(local_vars, global_vars, var_references)
 	local_vars.each_pair do |funcName, locals|
 		locals.each_pair do |varName, varData|
-			# puts "Checking: #{varName} of type #{varData.declared_type} (scope #{varData.scope})"
 			if isArbitraryType(varData.declared_type) and global_vars.include? varName
-				# puts "Fixing: #{varName} :- #{global_vars[varName].declared_type}"
 				varData.declared_type = global_vars[varName].declared_type
-				# fix_accidental_local_references(varName, varData, var_references, locals)
 			end
 		end
 	end
@@ -133,7 +127,6 @@ def fix_references_types(var_references, varName, scope, actualType, local_vars,
 			break
 		end
 	end
-	# puts "prev #{varName} :- #{currentType}"
 	if currentType == ""
 		return
 	end
@@ -169,16 +162,3 @@ def find_type_in_references(var_references, var_name, scope)
 	end
 	return nil
 end
-
-# def fix_accidental_local_references(varName, varData, var_references, locals)
-# 	var_references.each do |ref|
-# 		if ref.kind == "local" and ref.scope == varData.scope and ref.name == varName
-			
-# 			if not locals.keys.include? varName
-# 				puts "11"
-# 				ref.kind = "global"
-# 				ref.declared_type = varData.declared_type
-# 			end
-# 		end
-# 	end
-# end

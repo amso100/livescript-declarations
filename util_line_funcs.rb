@@ -19,7 +19,6 @@ end
 def get_line_variables(line, possibleTypes)
 	vars = Array.new
 	line.scan(/[A-Za-z]{1}[A-Za-z0-9_]*[^"]\n?|[A-Za-z]{1}[A-Za-z0-9_]*$/) do |m|
-		# puts "#{m.split("")}"
 		if m =~ /^[A-Za-z]{1}[A-Za-z0-9_]*\"\n?$/
 			# Do nothing. Not a variable.
 		elsif not m =~ /^[A-Za-z]{1}[A-Za-z0-9_]*$/
@@ -31,7 +30,6 @@ def get_line_variables(line, possibleTypes)
 		elsif possibleTypes.include? m
 			next
 		end
-		# puts "found var #{m} in linenoine \"#{line}\""
 		vars << m 
 	end
 	return vars
