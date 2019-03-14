@@ -1,6 +1,5 @@
 noTypes = (b1 :- B, l :- L) ->
 	l
-b2 = new B
 b2 :- B
 k = ->
 	b2

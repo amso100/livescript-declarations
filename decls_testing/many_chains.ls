@@ -8,12 +8,12 @@ f = (a, b, c, d) ->
 	y = z
 	z = x
 
-	x1 = x2
-	x2 = x1
+	z1 = z2
+	z2 = z1
 
 	d :- A
 	z :- Z
-	x1 :- X
+	z1 :- X
 
 x1 = x2
 x2 = x3
@@ -26,5 +26,5 @@ y3 = y4
 y2 = y3
 y4 = y1
 
-x3 :- X
-y3 :- Y
+x2 :- X
+y2 :- Y
