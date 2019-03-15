@@ -1,0 +1,14 @@
+- Add reference to assignment with problem with types
+- Check annotations with array types and their inference
+- Add column of reference to variable in its row
+
+class A
+  b: (args) ->
+    args
+    # body...
+    
+x = new A
+a0 :- A
+c = x.b(a0)
+
+

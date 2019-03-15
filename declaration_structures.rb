@@ -65,3 +65,16 @@ class TypeInferredFunction
 		@return_type = ret_type
 	end
 end
+
+# Class for keeping data on an assignment of incompatible types.
+class BadAssignment
+	attr_accessor :lineno, :line, :var1, :type1, :var2, :type2
+	def initialize(lineno, line, var1, type1, var2, type2)
+		@lineno = lineno
+		@line = line
+		@var1 = var1
+		@type1 = type1
+		@var2 = var2
+		@type2 = type2
+	end
+end

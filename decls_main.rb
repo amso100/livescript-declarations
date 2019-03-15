@@ -184,6 +184,7 @@ declared_funcs  = res_declared[0]
 declared_globs  = res_declared[1]
 declared_locals = res_declared[2]
 res_references = res_declared[3]
+res_bad_assigns = res_declared[4]
 
 res_var_infers = parse_locals_globals_infers(ls_program)
 inferred_locals = res_var_infers[0]
@@ -237,6 +238,10 @@ ast_j['lines'].each {|line|
 }
 
 ast = Ast.new ast_j
+
+res_bad_assigns.each_pair do |lineno, bA|
+	puts "Bad Assign at line #{bA.lineno} #{bA.line} (#{bA.var1} :- #{bA.type1}, #{bA.var2} :- #{bA.type2})"
+end
 
 # ---------- In this line the declaration results are added -----
 ast.add_completion_subtype_equations(completionHash)

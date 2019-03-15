@@ -74,22 +74,19 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 		end
 	end
 
-	# puts "Result Hash:"
+	# # puts "Result Hash:"
 	# completionHash.each_pair do |key, val|
-	# 	puts "#{key} =:= #{val}"
+	# 	# puts "#{key} =:= #{val}"
 	# end
 	return completionHash
 end
 
 def add_declared_type_to_hash(completionHash, inf_type, dec_type)
 	if isArbitraryType(dec_type)
-		# puts "Warning! Completion of arbitrary type! (#{inf_type} =:= #{dec_type})"
 		return
 	end
 
 	if completionHash[inf_type] == nil
 		completionHash[inf_type] = dec_type
-	elsif completionHash[inf_type] != nil and completionHash[inf_type] != dec_type
-		puts "Error! #{inf_type} has two types! (#{completionHash[inf_type]}, #{dec_type})"
 	end
 end

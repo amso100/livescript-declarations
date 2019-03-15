@@ -17,6 +17,10 @@
 #
 #	var_references: List of type VariableReference
 #
+# 	badAssignments: Hash
+#		Key: line number
+#		Value: bad assignment data
+#
 #	changed: Have any of the structures changed during the pass, to determine if done or not.
 def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, var_references, globals_exist)
 	changed = false
@@ -25,11 +29,13 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 	aribtrary_count = 0
 	in_function = false
 	prev_line = nil
+	last_real_line = nil
 	scopeno = -1
 	max_scope = -1
 	first_function = true
 	func_name = ""
 	allVariableTypes = Array.new
+	badAssignments = Hash.new
 
 	setup_variable_types(allVariableTypes, local_vars, global_vars)
 	allVariableTypes = allVariableTypes + get_all_class_names(text)
@@ -51,7 +57,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 		# Test for function with multiple arguments
 		elsif lineIsParamsFunctionStart(line)
 			if in_function == true
-				ret_type = parse_for_type(prev_line, local_vars, global_vars, func_name, functions_dict, var_references)
+				ret_type = parse_for_type(last_real_line, local_vars, global_vars, func_name, functions_dict, var_references)
 				if ret_type != nil
 					functions_dict[func_name].return_type = ret_type
 				end
@@ -95,7 +101,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 		# Test for functions without any arguments
 		elsif lineIsNoParamsFunctionStart(line)
 			if in_function == true
-				ret_type = parse_for_type(prev_line, local_vars, global_vars, func_name, functions_dict, var_references)
+				ret_type = parse_for_type(last_real_line, local_vars, global_vars, func_name, functions_dict, var_references)
 				if ret_type != nil
 					functions_dict[func_name].return_type = ret_type
 				end
@@ -123,7 +129,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 		# If exited scope and previous line is not null, parse
 		elsif prev_line != nil and count_tabs_at_start(line) == 0 and count_tabs_at_start(prev_line) > 0
 			# puts line
-			ret_type = parse_for_type(prev_line, local_vars, global_vars, func_name, functions_dict, var_references)
+			ret_type = parse_for_type(last_real_line, local_vars, global_vars, func_name, functions_dict, var_references)
 			if ret_type != nil
 				functions_dict[func_name].return_type = ret_type
 			end
@@ -146,9 +152,20 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 				if check_equals_statement != nil
 					assigned_name = check_equals_statement[0]
 					found_type = check_equals_statement[1]
+					assigned_to = check_equals_statement[2]
+					if global_vars[assigned_name] != nil and global_vars[assigned_to] != nil
+						t1 = global_vars[assigned_name].declared_type
+						t2 = global_vars[assigned_to].declared_type
+						if not isArbitraryType(t1) and not isArbitraryType(t2) and t1 != t2
+							badAssignments[ind] = BadAssignment.new(ind, line, assigned_to, t1, assigned_name, t2)
+						end
+					end
 					var_references.each do |ref|
 						if ref.kind == "global" and ref.name == assigned_name and (ref.declared_type == nil or isArbitraryType(ref.declared_type))
 							ref.declared_type = found_type
+							if found_type != nil and not isArbitraryType(found_type)
+								changed = true
+							end
 						end
 					end
 				end
@@ -215,6 +232,14 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 					if check_equals_statement != nil
 						assigned_name = check_equals_statement[0]
 						found_type = check_equals_statement[1]
+						assigned_to = check_equals_statement[2]
+						if local_vars[func_name][assigned_name] != nil and local_vars[func_name][assigned_to] != nil
+							t1 = local_vars[func_name][assigned_name].declared_type
+							t2 = local_vars[func_name][assigned_to].declared_type
+							if not isArbitraryType(t1) and not isArbitraryType(t2) and t1 != t2
+								badAssignments[ind] = BadAssignment.new(ind, line, assigned_to, t1, assigned_name, t2)
+							end
+						end
 						var_references.each do |ref|
 							if ref.kind == "local" and ref.name == assigned_name and ref.scope == scopeno and  isArbitraryType(ref.declared_type)
 								ref.declared_type = found_type
@@ -289,7 +314,14 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 					if check_equals_statement != nil
 						assigned_name = check_equals_statement[0]
 						found_type = check_equals_statement[1]
-						funcName = check_equals_statement[2]
+						assigned_to = check_equals_statement[2]
+						if global_vars[assigned_name] != nil and global_vars[assigned_to] != nil
+							t1 = global_vars[assigned_name].declared_type
+							t2 = global_vars[assigned_to].declared_type
+							if not isArbitraryType(t1) and not isArbitraryType(t2) and t1 != t2
+								badAssignments[ind] = BadAssignment.new(ind, line, assigned_to, t1, assigned_name, t2)
+							end
+						end
 						var_references.each do |ref|
 							if ref.kind == "global" and ref.name == assigned_name and (ref.declared_type == nil or isArbitraryType(ref.declared_type))
 								ref.declared_type = found_type
@@ -342,6 +374,9 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 			max_scope = scopeno
 		end
 		prev_line = line
+		if not line.include? ":-"
+			last_real_line = line
+		end
 		# puts "Variable References:"
 		# var_references.each do |data|
 		# 	if data.declared_type == nil
@@ -356,7 +391,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 
 	# If exited program with a "leftover" line remaining, test it.
 	if prev_line != nil and count_tabs_at_start(prev_line) > 0
-		ret_type = parse_for_type(prev_line, local_vars, global_vars, func_name, functions_dict, var_references)
+		ret_type = parse_for_type(last_real_line, local_vars, global_vars, func_name, functions_dict, var_references)
 		functions_dict[func_name].return_type = ret_type
 	end
 
@@ -383,6 +418,6 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 	# 	end
 	# 	puts "\tline #{data.line_found+1}: \"#{data.name}\", #{data.kind} [declared: line #{data.line_declared+1}, as #{data.declared_type}]"
 	# end
-
-	return [functions_dict, global_vars, local_vars, var_references, changed]
+	# puts "-----------------------------"
+	return [functions_dict, global_vars, local_vars, var_references, changed, badAssignments]
 end

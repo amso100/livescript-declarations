@@ -1,96 +1,61 @@
 digraph RGL__DirectedAdjacencyGraph {
-    "int (T-28)" [
+    "B (T-20)" [
         fontsize = 8,
-        label = "int (T-28)"
+        label = "B (T-20)"
     ]
 
-    int [
+    B [
         fontsize = 8,
-        label = int
+        label = B
     ]
 
-    "int (T-27)" [
+    "B (T-6)" [
         fontsize = 8,
-        label = "int (T-27)"
+        label = "B (T-6)"
     ]
 
-    "int (T-23)" [
+    A [
         fontsize = 8,
-        label = "int (T-23)"
+        label = A
     ]
 
-    "int (T-12)" [
+    "A (T-12)" [
         fontsize = 8,
-        label = "int (T-12)"
+        label = "A (T-12)"
     ]
 
-    "int (T-8)" [
+    "A (T-5)" [
         fontsize = 8,
-        label = "int (T-8)"
+        label = "A (T-5)"
     ]
 
-    "int (T-40)" [
+    C [
         fontsize = 8,
-        label = "int (T-40)"
+        label = C
     ]
 
-    "int (T-39)" [
+    "C (T-7)" [
         fontsize = 8,
-        label = "int (T-39)"
+        label = "C (T-7)"
     ]
 
-    "int (T-13)" [
-        fontsize = 8,
-        label = "int (T-13)"
-    ]
-
-    "int (T-33)" [
-        fontsize = 8,
-        label = "int (T-33)"
-    ]
-
-    "int (T-32)" [
-        fontsize = 8,
-        label = "int (T-32)"
-    ]
-
-    "int (T-28)" -> int [
+    "B (T-20)" -> B [
         fontsize = 8
     ]
 
-    int -> "int (T-27)" [
+    B -> "B (T-6)" [
         fontsize = 8
     ]
 
-    int -> "int (T-23)" [
+    A -> "A (T-12)" [
         fontsize = 8
     ]
 
-    int -> "int (T-12)" [
+    A -> "A (T-5)" [
         fontsize = 8
     ]
 
-    int -> "int (T-8)" [
-        fontsize = 8
-    ]
-
-    "int (T-40)" -> int [
-        fontsize = 8
-    ]
-
-    "int (T-39)" -> int [
-        fontsize = 8
-    ]
-
-    "int (T-13)" -> int [
-        fontsize = 8
-    ]
-
-    "int (T-33)" -> int [
-        fontsize = 8
-    ]
-
-    "int (T-32)" -> int [
+    C -> "C (T-7)" [
         fontsize = 8
     ]
 }

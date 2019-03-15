@@ -43,11 +43,12 @@ def getProgramDeclarationsAndReferences(program_text)
 	res_globs = res[1]
 	res_vars  = res[2]
 	res_references = res[3].sort_by { |ref| ref.line_found }
+	badAssigns = res[5]
 
 	#update_all_incomplete_references(res_references)
 	#clean_accidental_locals(res_references, res_vars)
 
-	return [res_funcs, res_globs, res_vars, res_references]
+	return [res_funcs, res_globs, res_vars, res_references, badAssigns]
 end
 
 def update_all_incomplete_references(var_references)

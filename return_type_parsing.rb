@@ -82,7 +82,6 @@ def parse_for_type(line, local_vars, global_vars, func_name, funcs_dict, var_ref
 	if lineHasGlobalVariable(line)
 		return nil
 	end
-	# puts line
 	var1 = single_var_return_statement(line)
 	var12 = var_equals_var_statement(line)
 	var2 = var_equals_exp_return_statement(line)
@@ -91,10 +90,8 @@ def parse_for_type(line, local_vars, global_vars, func_name, funcs_dict, var_ref
 	if var1 != false
 		# puts var1
 		if local_vars[func_name] != nil and local_vars[func_name].keys.include?(var1)
-			# puts local_vars[func_name][var1].declared_type
 			return local_vars[func_name][var1].declared_type
 		elsif global_vars.keys.include?(var1)
-			# puts global_vars[var1].declared_type
 			return global_vars[var1].declared_type
 		else
 			check_global = check_global_references(var1, var_references)
@@ -154,14 +151,14 @@ def local_parse_for_type(cur_line, local_vars, func_name, var_references, scope,
 	var0 = var0[0]
 	if var1 != nil
 		if local_vars.include? var1 and not isArbitraryType(local_vars[var1].declared_type)
-			return [var0, local_vars[var1].declared_type]
+			return [var0, local_vars[var1].declared_type, var1]
 		elsif funcs_dict.include? var1 and not isArbitraryType(funcs_dict[var1].return_type)
-			return [var0, funcs_dict[var1].return_type]
+			return [var0, funcs_dict[var1].return_type, var1]
 		else
 			var_references.each do |ref|
 				if ref != nil and ref.name == var1 and ref.scope == scope and ref.declared_type != nil and not isArbitraryType(ref.declared_type)
 					# puts "22 #{func_name}-> #{line}: #{var0} = #{var1} : #{local_vars[var1].declared_type}"
-					return [var0, ref.declared_type]
+					return [var0, ref.declared_type, var1]
 				end
 			end
 		end
@@ -179,14 +176,14 @@ def global_parse_for_type(cur_line, global_vars, var_references, funcs_dict)
 	var0 = var0[0]
 	if var1 != nil
 		if global_vars.include? var1
-			return [var0, global_vars[var1].declared_type]
+			return [var0, global_vars[var1].declared_type, var1]
 		elsif funcs_dict.include? var1
 			# puts "(#{global_vars[var0].declared_type}) #{var0} = #{var1} (#{funcs_dict[var1].return_type})"
 			return [var0, funcs_dict[var1].return_type, var1]
 		else
 			ref = check_global_references(var1, var_references)
 			if ref != nil and ref.declared_type != nil and ref.declared_type != ""
-				return [var0, ref.declared_type]
+				return [var0, ref.declared_type, var1]
 			end
 		end
 	end
