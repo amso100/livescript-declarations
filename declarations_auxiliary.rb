@@ -172,25 +172,23 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 
 				vars = get_line_variables(line, allVariableTypes)
 				vars.each do |var|
-					if global_vars.keys.include?(var)
-						ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global", 0)
-						if add_variable_reference(var_references, ref)
-							changed = true
-						end
-					elsif functions_dict.keys.include?(var)
-						ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func", 0)
-						if add_variable_reference(var_references, ref)
-							changed = true
-						end
-					else
-						possible_type = find_type_in_references(var_references, var, 0)
-						if check_equals_statement != nil and found_type != nil and assigned_name == var
-							ref = VariableReference.new(var, -2, ind, found_type, "global", 0)
-						elsif possible_type != nil
-							ref = VariableReference.new(var, -2, ind, possible_type, "global", 0)
+					places = get_variable_columns(line, var)
+					places.each do |pl|
+						ref = nil
+						if global_vars.keys.include?(var)
+							ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global", 0, "", pl)
+						elsif functions_dict.keys.include?(var)
+							ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func", 0, "", pl)
 						else
-							ref = VariableReference.new(var, -2, ind, "T'-#{aribtrary_count}", "global", 0)
-							aribtrary_count += 1
+							possible_type = find_type_in_references(var_references, var, 0)
+							if check_equals_statement != nil and found_type != nil and assigned_name == var
+								ref = VariableReference.new(var, -2, ind, found_type, "global", 0, "", pl)
+							elsif possible_type != nil
+								ref = VariableReference.new(var, -2, ind, possible_type, "global", 0, "", pl)
+							else
+								ref = VariableReference.new(var, -2, ind, "T'-#{aribtrary_count}", "global", 0, "", pl)
+								aribtrary_count += 1
+							end
 						end
 						if add_variable_reference(var_references, ref)
 							changed = true
@@ -261,35 +259,38 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 					current_scope = local_vars[func_name]
 					vars = get_line_variables(line, allVariableTypes)
 					vars.each do |var|
-						if current_scope.keys.include?(var)
-							if current_scope[var].declared_type != ""
-								ref = VariableReference.new(var, current_scope[var].lineno, ind, current_scope[var].declared_type, "local", scopeno, func_name)
+						places = get_variable_columns(line, var)
+						places.each do |pl|
+							if current_scope.keys.include?(var)
+								if current_scope[var].declared_type != ""
+									ref = VariableReference.new(var, current_scope[var].lineno, ind, current_scope[var].declared_type, "local", scopeno, func_name, pl)
+									if add_variable_reference(var_references, ref)
+										changed = true
+									end
+								end
+							elsif global_vars.keys.include?(var)
+								if global_vars[var].declared_type != ""
+									ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global", 0, "", pl)
+									if add_variable_reference(var_references, ref)
+										changed = true
+									end
+								end
+							elsif functions_dict.keys.include?(var)
+								ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func", 0, "", pl)
 								if add_variable_reference(var_references, ref)
 									changed = true
 								end
-							end
-						elsif global_vars.keys.include?(var)
-							if global_vars[var].declared_type != ""
-								ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global", 0)
-								if add_variable_reference(var_references, ref)
-									changed = true
+							else
+								need = true
+								var_references.each do |ref|
+									if ref.name == var and ref.kind == "global"
+										need = false
+									end
 								end
-							end
-						elsif functions_dict.keys.include?(var)
-							ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func", 0)
-							if add_variable_reference(var_references, ref)
-								changed = true
-							end
-						else
-							need = true
-							var_references.each do |ref|
-								if ref.name == var and ref.kind == "global"
-									need = false
+								if need
+									current_scope[var] = TypeDeclaredVar.new(var, "T'-#{aribtrary_count}", func_name, -2, scopeno)
+									aribtrary_count += 1
 								end
-							end
-							if need
-								current_scope[var] = TypeDeclaredVar.new(var, "T'-#{aribtrary_count}", func_name, -2, scopeno)
-								aribtrary_count += 1
 							end
 						end
 					end
@@ -334,34 +335,32 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 
 					vars = get_line_variables(line, allVariableTypes)
 					vars.each do |var|
-						if global_vars.keys.include?(var)
-							ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global", 0)
-							if add_variable_reference(var_references, ref)
-								changed = true
-							end
-						elsif functions_dict.keys.include?(var)
-							ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func", 0)
-							if add_variable_reference(var_references, ref)
-								changed = true
-							end
-						else
-							if line.include? "class "
-								cls_name = line[5..-1][/[A-Z]+[A-Za-z]/]
-								allVariableTypes << cls_name
+						places = get_variable_columns(line, var)
+						places.each do |pl|
+							ref = nil
+							if global_vars.keys.include?(var)
+								ref = VariableReference.new(var, global_vars[var].lineno, ind, global_vars[var].declared_type, "global", 0, "", pl)
+							elsif functions_dict.keys.include?(var)
+								ref = VariableReference.new(var, functions_dict[var].lineno, ind, nil, "func", 0, "", pl)
 							else
-								possible_type = find_type_in_references(var_references, var, 0)
-								if check_equals_statement != nil and found_type != nil and assigned_name == var
-									# puts "111 #{var} :- #{found_type}"
-									ref = VariableReference.new(var, -2, ind, found_type, "global", 0)
-								elsif possible_type != nil
-									ref = VariableReference.new(var, -2, ind, possible_type, "global", 0)
+								if line.include? "class "
+									cls_name = line[5..-1][/[A-Z]+[A-Za-z]/]
+									allVariableTypes << cls_name
 								else
-									ref = VariableReference.new(var, -2, ind, "T'-#{aribtrary_count}", "global", 0)
-									aribtrary_count += 1
+									possible_type = find_type_in_references(var_references, var, 0)
+									if check_equals_statement != nil and found_type != nil and assigned_name == var
+										# puts "111 #{var} :- #{found_type}"
+										ref = VariableReference.new(var, -2, ind, found_type, "global", 0, "", pl)
+									elsif possible_type != nil
+										ref = VariableReference.new(var, -2, ind, possible_type, "global", 0, "", pl)
+									else
+										ref = VariableReference.new(var, -2, ind, "T'-#{aribtrary_count}", "global", 0, "", pl)
+										aribtrary_count += 1
+									end
 								end
-								if add_variable_reference(var_references, ref)
-									changed = true
-								end
+							end
+							if add_variable_reference(var_references, ref)
+								changed = true
 							end
 						end
 					end
@@ -385,7 +384,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 		# 	if data.inferred_type == ""
 		# 		data.inferred_type = "?"
 		# 	end
-		# 	puts "\tline #{data.line_found+1}: \"#{data.name}\", #{data.kind} [declared: line #{data.line_declared+1}, as #{data.declared_type}], type #{data.inferred_type}, scope #{data.scope}"
+		# 	puts "\tline #{data.line_found+1} column #{data.column_found}: \"#{data.name}\", #{data.kind} [declared: line #{data.line_declared+1}, as #{data.declared_type}], type #{data.inferred_type}, scope #{data.scope}"
 		# end
 	end
 

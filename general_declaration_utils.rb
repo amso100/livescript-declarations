@@ -1,23 +1,13 @@
 def add_variable_reference(allReferences, newRef)
 	found = false
 	allReferences.each do |ref|
-		
 		# Inserting a reference twice will cause an infinite loop
-		if ref.name == newRef.name and ref.line_found == newRef.line_found
+		if ref.name == newRef.name and ref.line_found == newRef.line_found and ref.column_found == newRef.column_found
 			return false
 		end
-
-		if ref.name == newRef.name and ref.line_found == newRef.line_found
-			found = true
-			ref.declared_type = newRef.declared_type
-			return true
-		end
 	end
-	if not found
-		allReferences << newRef
-		return true
-	end
-	return false
+	allReferences << newRef
+	return true
 end
 
 def setup_variable_types(allTypes, local_vars, global_vars)

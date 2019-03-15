@@ -73,6 +73,25 @@ def global_variables_exist(text)
 	return false
 end
 
+def get_variable_columns(line, var)
+	places = Array.new
+	cnt = 1
+	while line.index(var) != nil
+		i1 = line.index(var) + var.length
+		if line[0..i1].include? "\t"
+			if cnt == 1
+				cnt += 3
+			else
+				cnt += 4
+			end
+		end
+		# puts "#{line} : #{var} : #{line.index(var) + cnt + 1}"
+		places << line.index(var) + (cnt-1) + 1
+		line = line[i1..-1]
+	end
+	return places
+end
+
 # def get_global_variable_names(text)
 # 	names = Array.new
 # 	f_in = File.open("for_globals.ls", "w")

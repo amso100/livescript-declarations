@@ -275,7 +275,7 @@ res_references.each do |data|
 	if data.inferred_type == ""
 		data.inferred_type = "?"
 	end
-	puts "\tline #{data.line_found+1}: \"#{data.name}\", #{data.kind} [declared: line #{data.line_declared+1}, as #{data.declared_type}], type #{data.inferred_type}"
+	puts "\tline #{data.line_found+1} column #{data.column_found}: \"#{data.name}\", #{data.kind} [declared: line #{data.line_declared+1}, as #{data.declared_type}], type #{data.inferred_type}"
 end
 
 STDOUT.puts $stdout.string
