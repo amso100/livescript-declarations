@@ -3,9 +3,19 @@ require "./ast.rb"
 
 def get_line_declarations(line, allTypes)
 	declarations = Hash.new
-	line.scan(/[A-Za-z_]{1}[A-Za-z0-9_]* *:- *[A-Za-z_]{1}[A-Za-z0-9_]*/) do
-		|match| a = match.scan(/[a-zA-z_]{1}[A-Za-z0-9_]*/)[0]
+	line.scan(/[A-Za-z_]{1}[A-Za-z0-9_]* *:- *[A-Za-z_]{1}[A-Za-z0-9_]*/) do |match|
+		a = match.scan(/[a-zA-z_]{1}[A-Za-z0-9_]*/)[0]
 		b = match.scan(/[a-zA-z_]{1}[A-Za-z0-9_]*/)[1]
+		if allTypes.include?(a) or b == nil
+			next
+		end
+
+		# If actually a declaration
+		declarations[a] = b
+	end
+	line.scan(/[A-Za-z_]{1}[A-Za-z0-9_]* *:- *\[[A-Za-z_]{1}[A-Za-z0-9_]*\]/) do |m|
+		a = m.scan(/[a-zA-z_]{1}[A-Za-z0-9_]*/)[0]
+		b = m.scan(/\[[a-zA-z_]{1}[A-Za-z0-9_]*\]/)[0]
 		if allTypes.include?(a) or b == nil
 			next
 		end

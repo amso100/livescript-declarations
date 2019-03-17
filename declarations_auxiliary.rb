@@ -50,8 +50,8 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 
 	text.split("\n").each_with_index do |line, ind|
 
-		# If empty line, continue
-		if line.strip.length == 0
+		# If empty line or commented, continue
+		if line.strip.length == 0 or line =~ /[\t ]*#.+$/
 			next
 
 		# Test for function with multiple arguments
@@ -298,6 +298,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 			else
 				declarations = get_line_declarations(line, allVariableTypes)
 				declarations.each_pair do |name, type|
+					# puts "#{name} :- #{type}"
 					if not global_vars.include?(name) and not allVariableTypes.include?(name)
 						global_vars[name] = TypeDeclaredVar.new(name, type, "", ind, scopeno)
 						fix_references_types(var_references, name, 0, type, local_vars, global_vars, functions_dict)

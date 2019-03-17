@@ -1,4 +1,5 @@
 # Functions for completion of missing types that the Type Inference part did not manage to complete.
+require "./general_declaration_utils.rb"
 
 def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunctions,
 									declaredLocals, declaredGlobals, declaredFunctions,
@@ -36,7 +37,13 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 			# puts "#{inferredVar.name}: #{inferredVar.inferred_type} =:= NIL"
 		else
 			# puts "#{inferredVar.name}: #{inferredVar.inferred_type} =:= #{match.declared_type}"
-			add_declared_type_to_hash(completionHash, inferredVar.inferred_type, match.declared_type)
+			check = simplify_array_declaration(inferredVar.inferred_type, match.declared_type)
+			if check != nil
+				puts "#{check}"
+			end
+			a_new = check[0]
+			b_new = check[1]
+			add_declared_type_to_hash(completionHash, a_new, b_new)
 		end
 	end
 

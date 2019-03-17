@@ -67,7 +67,7 @@ def parse_locals_globals_infers(program, is_inferred = false)
 			next
 		end
 		if scope =~ /- [A-Za-z0-9_]+ -/ and not scope =~ /- __global__ -/
-			# puts "222"
+			# Class here
 			next
 		end
 		if scope.strip.length < 2
@@ -86,7 +86,6 @@ def parse_locals_globals_infers(program, is_inferred = false)
 			end
 			name = var.split(" : ")[0].strip
 			type = var.split(" : ")[1].strip
-			# puts "#{name}, #{type}"
 			tmp << TypeInferredVar.new(name, type, i)
 		end
 
