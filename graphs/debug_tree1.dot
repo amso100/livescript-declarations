@@ -1,7 +1,12 @@
 digraph RGL__DirectedAdjacencyGraph {
-    float [
+    "int (T-19)" [
         fontsize = 8,
-        label = float
+        label = "int (T-19)"
+    ]
+
+    "int (T-21)" [
+        fontsize = 8,
+        label = "int (T-21)"
     ]
 
     int [
@@ -9,17 +14,16 @@ digraph RGL__DirectedAdjacencyGraph {
         label = int
     ]
 
-    "float (T-4)" [
+    float [
         fontsize = 8,
-        label = "float (T-4)"
+        label = float
     ]
 
-    "float (T-3)" [
-        fontsize = 8,
-        label = "float (T-3)"
+    "int (T-19)" -> "int (T-21)" [
+        fontsize = 8
     ]
 
-    float -> float [
+    int -> "int (T-19)" [
         fontsize = 8
     ]
 
@@ -27,11 +31,11 @@ digraph RGL__DirectedAdjacencyGraph {
         fontsize = 8
     ]
 
-    "float (T-4)" -> float [
+    int -> float [
         fontsize = 8
     ]
 
-    "float (T-3)" -> float [
+    float -> float [
         fontsize = 8
     ]
 }

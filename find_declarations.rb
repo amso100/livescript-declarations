@@ -1,7 +1,7 @@
 # Goes over file, and prints all found type declarations
 
 def lineIsParamsFunctionStart(line)
-	if line =~ /[A-Za-z0-9]+ *= *\([A-Za-z0-9,_ :=]*\) ->\n?/
+	if line =~ /[A-Za-z0-9]+ *= *\([A-Za-z0-9,_ :=]*\) ->\n?/ or line =~ /[A-Za-z0-9]+ *: *\([A-Za-z0-9,_ :=]*\) ->\n?/
 		return true
 	else
 		return false
@@ -9,7 +9,7 @@ def lineIsParamsFunctionStart(line)
 end
 
 def lineIsNoParamsFunctionStart(line)
-	if line =~ /[A-Za-z0-9]+ *= *->\n?([A-Za-z0-9]*)?/
+	if line =~ /[A-Za-z0-9]+ *= *->\n?([A-Za-z0-9]*)?/ or line =~ /[A-Za-z0-9]+ *: *->\n?([A-Za-z0-9]*)?/
 		return true
 	else
 		return false

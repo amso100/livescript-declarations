@@ -21,7 +21,9 @@ end
 
 def simplify_array_declaration(a, b)
 	# puts "a=#{a}, b=#{b}"
-	if array_simplified(a, b) == true
+	if a == nil or b == nil
+		return nil
+	elsif array_simplified(a, b) == true
 		return [a, b]
 	else
 		a = a[1..-2]
@@ -29,6 +31,11 @@ def simplify_array_declaration(a, b)
 		# puts "new a=#{a}, new b=#{b}"
 		return simplify_array_declaration(a, b)
 	end
+end
+
+def try_to_simplify(a, b)
+	check = simplify_array_declaration(a, b)
+	return check
 end
 
 def setup_variable_types(allTypes, local_vars, global_vars)

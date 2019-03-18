@@ -117,7 +117,6 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 			in_function = true
 
 			line.scan(/[A-Za-z]{1}[A-Za-z0-9_]*/) do |m|
-				func_name = m[0]
 				if not functions_dict.keys.include?(func_name)
 					local_vars[func_name] = Hash.new
 					changed = true

@@ -1,4 +1,4 @@
-1. Add column of reference to variable in its row
+
 2. Add support for array types and their inference
 3. Add support for class methods declarations
 

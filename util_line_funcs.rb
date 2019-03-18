@@ -13,9 +13,9 @@ def get_line_declarations(line, allTypes)
 		# If actually a declaration
 		declarations[a] = b
 	end
-	line.scan(/[A-Za-z_]{1}[A-Za-z0-9_]* *:- *\[[A-Za-z_]{1}[A-Za-z0-9_]*\]/) do |m|
+	line.scan(/[A-Za-z_]{1}[A-Za-z0-9_]* *:- *\[+[A-Za-z_]{1}[A-Za-z0-9_]*\]+/) do |m|
 		a = m.scan(/[a-zA-z_]{1}[A-Za-z0-9_]*/)[0]
-		b = m.scan(/\[[a-zA-z_]{1}[A-Za-z0-9_]*\]/)[0]
+		b = m.scan(/\[+[a-zA-z_]{1}[A-Za-z0-9_]*\]+/)[0]
 		if allTypes.include?(a) or b == nil
 			next
 		end
@@ -57,6 +57,29 @@ def lineHasFunctionCall(line)
 	end
 end
 
+def lineIsClassStart(line)
+	if line =~ /^class [A-Za-z0-9_]+$/ or line =~ /class [A-Za-z0-9_]+ +\#.*$/
+		return true
+	elsif line =~ /^class [A-Za-z0-9_]+ extends [A-Za-z0-9_]+$/ or line =~ /^class [A-Za-z0-9_]+ extends [A-Za-z0-9_]+ +\#.*$/
+		return true
+	else
+		return false
+	end
+end
+
+def lineGetClassName(line)
+	i1 = line.index(" ")
+	return line[i1..-1][/[A-Za-z0-9_]+/]
+end
+
+def lineIsClassFunctionStart(line)
+	if line =~ /[A-Za-z]{1}[A-Za-z0-9_]*: *\([A-Za-z0-9_,]*\) *->$/
+		return true
+	else
+		return false
+	end
+end
+
 def count_tabs_at_start(line)
 	c = 0
 	while line[c].ord == 9 do
@@ -88,15 +111,17 @@ def get_variable_columns(line, var)
 	cnt = 1
 	while line.index(var) != nil
 		i1 = line.index(var) + var.length
-		if line[0..i1].include? "\t"
-			if cnt == 1
-				cnt += 3
-			else
-				cnt += 4
+		if i1 < line.length and not (line[i1] =~ /[A-Za-z0-9_]/)
+			if line[0..i1].include? "\t"
+				if cnt == 1
+					cnt += 3
+				else
+					cnt += 4
+				end
 			end
+			# puts "#{line} : #{var} : #{line.index(var) + cnt + 1}"
+			places << line.index(var) + (cnt-1) + 1
 		end
-		# puts "#{line} : #{var} : #{line.index(var) + cnt + 1}"
-		places << line.index(var) + (cnt-1) + 1
 		line = line[i1..-1]
 	end
 	return places
