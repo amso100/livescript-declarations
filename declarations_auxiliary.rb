@@ -117,6 +117,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 			in_function = true
 
 			line.scan(/[A-Za-z]{1}[A-Za-z0-9_]*/) do |m|
+				func_name = m[0]
 				if not functions_dict.keys.include?(func_name)
 					local_vars[func_name] = Hash.new
 					changed = true
@@ -149,25 +150,45 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 				# Check if this is a '=' line and forward declarations if found.
 				check_equals_statement = global_parse_for_type(line, global_vars, var_references, functions_dict)
 				if check_equals_statement != nil
-					assigned_name = check_equals_statement[0]
-					found_type = check_equals_statement[1]
-					assigned_to = check_equals_statement[2]
-					if global_vars[assigned_name] != nil and global_vars[assigned_to] != nil
-						t1 = global_vars[assigned_name].declared_type
-						t2 = global_vars[assigned_to].declared_type
-						if not isArbitraryType(t1) and not isArbitraryType(t2) and t1 != t2
-							badAssignments[ind] = BadAssignment.new(ind, line, assigned_to, t1, assigned_name, t2)
+						assigned_name = check_equals_statement[0]
+						found_type = check_equals_statement[1]
+						assigned_to = check_equals_statement[2]
+						t1 = global_vars[assigned_name]
+						t2 = global_vars[assigned_to]
+						badAssign = false
+						if global_vars[assigned_name] != nil and global_vars[assigned_to] != nil
+							t1 = t1.declared_type
+							t2 = t2.declared_type
+							if not isArbitraryType(t1) and not isArbitraryType(t2) and t1 != t2
+								badAssignments[ind] = BadAssignment.new(ind, line, assigned_name, t1, assigned_to, t2)
+								badAssign = true
+							end
+						else
+							t1 = nil
+							t2 = nil
+							var_references.each do |ref|
+								if ref.name == assigned_name and ref.kind == "global"
+									t1 = ref.declared_type
+								elsif ref.name == assigned_to and ref.kind == "global"
+									t2 = ref.declared_type
+								end
+							end
+							if not isArbitraryType(t1) and not isArbitraryType(t2) and t1 != t2
+								badAssignments[ind] = BadAssignment.new(ind, line, assigned_name, t1, assigned_to, t2)
+								badAssign = true
+							end
 						end
-					end
-					var_references.each do |ref|
-						if ref.kind == "global" and ref.name == assigned_name and (ref.declared_type == nil or isArbitraryType(ref.declared_type))
-							ref.declared_type = found_type
-							if found_type != nil and not isArbitraryType(found_type)
-								changed = true
+						if not badAssign
+							var_references.each do |ref|
+								if ref.kind == "global" and ref.name == assigned_name and (ref.declared_type == nil or isArbitraryType(ref.declared_type))
+									ref.declared_type = found_type
+									if found_type != nil and not isArbitraryType(found_type)
+										changed = true
+									end
+								end
 							end
 						end
 					end
-				end
 
 				vars = get_line_variables(line, allVariableTypes)
 				vars.each do |var|
@@ -230,27 +251,46 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 						assigned_name = check_equals_statement[0]
 						found_type = check_equals_statement[1]
 						assigned_to = check_equals_statement[2]
-						if local_vars[func_name][assigned_name] != nil and local_vars[func_name][assigned_to] != nil
-							t1 = local_vars[func_name][assigned_name].declared_type
-							t2 = local_vars[func_name][assigned_to].declared_type
+						t1 = local_vars[func_name][assigned_name]
+						t2 = local_vars[func_name][assigned_to]
+						badAssign = false
+						if t1 != nil and t2 != nil and not isArbitraryType(local_vars[func_name][assigned_name].declared_type) and not isArbitraryType(local_vars[func_name][assigned_to].declared_type)
+							t1 = t1.declared_type
+							t2 = t2.declared_type							
 							if not isArbitraryType(t1) and not isArbitraryType(t2) and t1 != t2
-								badAssignments[ind] = BadAssignment.new(ind, line, assigned_to, t1, assigned_name, t2)
+								badAssignments[ind] = BadAssignment.new(ind, line, assigned_name, t1, assigned_to, t2)
+								badAssign = true
+							end
+						else
+							t1 = nil
+							t2 = nil
+							var_references.each do |ref|
+								if ref.name == assigned_name and ref.func_name == func_name
+									t1 = ref.declared_type
+								elsif ref.name == assigned_to and ref.func_name == func_name
+									t2 = ref.declared_type
+								end
+							end
+							if not isArbitraryType(t1) and not isArbitraryType(t2) and t1 != t2
+								badAssignments[ind] = BadAssignment.new(ind, line, assigned_name, t1, assigned_to, t2)
+								badAssign = true
 							end
 						end
-						var_references.each do |ref|
-							if ref.kind == "local" and ref.name == assigned_name and ref.scope == scopeno and  isArbitraryType(ref.declared_type)
-								ref.declared_type = found_type
-								current_function_args = functions_dict[func_name].args
-								current_function_args.each do |arg|
-									if arg.name == assigned_name and isArbitraryType(arg.type)
-										arg.type = found_type
+						if not badAssign
+							var_references.each do |ref|
+								if ref.kind == "local" and ref.name == assigned_name and ref.func_name == func_name and  isArbitraryType(ref.declared_type)
+									ref.declared_type = found_type
+									current_function_args = functions_dict[func_name].args
+									current_function_args.each do |arg|
+										if arg.name == assigned_name and isArbitraryType(arg.type)
+											arg.type = found_type
+										end
+									end
+									if found_type != nil and not isArbitraryType(found_type)
+										changed = true
 									end
 								end
-								if found_type != nil and not isArbitraryType(found_type)
-									changed = true
-								end
 							end
-
 						end
 					end
 
@@ -288,6 +328,10 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 								end
 								if need
 									current_scope[var] = TypeDeclaredVar.new(var, "T'-#{aribtrary_count}", func_name, -2, scopeno)
+									ref = VariableReference.new(var, -2, ind, "T'-#{aribtrary_count}", "local", scopeno, func_name, pl)
+									if add_variable_reference(var_references, ref)
+										changed = true
+									end
 									aribtrary_count += 1
 								end
 							end
@@ -316,18 +360,38 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 						assigned_name = check_equals_statement[0]
 						found_type = check_equals_statement[1]
 						assigned_to = check_equals_statement[2]
+						t1 = global_vars[assigned_name]
+						t2 = global_vars[assigned_to]
+						badAssign = false
 						if global_vars[assigned_name] != nil and global_vars[assigned_to] != nil
-							t1 = global_vars[assigned_name].declared_type
-							t2 = global_vars[assigned_to].declared_type
+							t1 = t1.declared_type
+							t2 = t2.declared_type
 							if not isArbitraryType(t1) and not isArbitraryType(t2) and t1 != t2
-								badAssignments[ind] = BadAssignment.new(ind, line, assigned_to, t1, assigned_name, t2)
+								badAssignments[ind] = BadAssignment.new(ind, line, assigned_name, t1, assigned_to, t2)
+								badAssign = true
+							end
+						else
+							t1 = nil
+							t2 = nil
+							var_references.each do |ref|
+								if ref.name == assigned_name and ref.kind == "global"
+									t1 = ref.declared_type
+								elsif ref.name == assigned_to and ref.kind == "global"
+									t2 = ref.declared_type
+								end
+							end
+							if not isArbitraryType(t1) and not isArbitraryType(t2) and t1 != t2
+								badAssignments[ind] = BadAssignment.new(ind, line, assigned_name, t1, assigned_to, t2)
+								badAssign = true
 							end
 						end
-						var_references.each do |ref|
-							if ref.kind == "global" and ref.name == assigned_name and (ref.declared_type == nil or isArbitraryType(ref.declared_type))
-								ref.declared_type = found_type
-								if found_type != nil and not isArbitraryType(found_type)
-									changed = true
+						if not badAssign
+							var_references.each do |ref|
+								if ref.kind == "global" and ref.name == assigned_name and (ref.declared_type == nil or isArbitraryType(ref.declared_type))
+									ref.declared_type = found_type
+									if found_type != nil and not isArbitraryType(found_type)
+										changed = true
+									end
 								end
 							end
 						end
@@ -415,7 +479,7 @@ def get_program_declarations_aux(text, functions_dict, global_vars, local_vars, 
 	# 	if data.declared_type == nil
 	# 		data.declared_type = "func"
 	# 	end
-	# 	puts "\tline #{data.line_found+1}: \"#{data.name}\", #{data.kind} [declared: line #{data.line_declared+1}, as #{data.declared_type}]"
+	# 	puts "\tline #{data.line_found+1}: \"#{data.name}\", #{data.kind} [declared: line #{data.line_declared+1}, as #{data.declared_type}] (#{data.func_name})"
 	# end
 	# puts "-----------------------------"
 	return [functions_dict, global_vars, local_vars, var_references, changed, badAssignments]

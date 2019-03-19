@@ -18,12 +18,7 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 			# puts "#{inferredVar.name}: #{inferredVar.inferred_type} =:= NIL"
 		else
 			# puts "#{inferredVar.name}: #{inferredVar.inferred_type} =:= #{match.declared_type}"
-			check = try_to_simplify(inferredVar.inferred_type, match.declared_type)
-			if check != nil
-				a_new = check[0]
-				b_new = check[1]
-				add_declared_type_to_hash(completionHash, a_new, b_new)
-			end
+			add_declared_type_to_hash(completionHash, inferredVar.inferred_type, match.declared_type)
 		end
 	end
 
@@ -42,12 +37,13 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 			# puts "#{inferredVar.name}: #{inferredVar.inferred_type} =:= NIL"
 		else
 			# puts "#{inferredVar.name}: #{inferredVar.inferred_type} =:= #{match.declared_type}"
-			check = try_to_simplify(inferredVar.inferred_type, match.declared_type)
+			check = simplify_array_declaration(inferredVar.inferred_type, match.declared_type)
 			if check != nil
-				a_new = check[0]
-				b_new = check[1]
-				add_declared_type_to_hash(completionHash, a_new, b_new)
+				# puts "#{check}"
 			end
+			a_new = check[0]
+			b_new = check[1]
+			add_declared_type_to_hash(completionHash, a_new, b_new)
 		end
 	end
 
@@ -63,23 +59,13 @@ def try_to_complete_missing_types(	inferredLocals, inferredGlobals, inferredFunc
 					# puts "#{funcName}  [Return]: #{inferredFunc.return_type} =:= NIL"
 				else
 					# puts "#{funcName}  [Return]: #{inferredFunc.return_type} =:= #{match.return_type}"
-					check = try_to_simplify(inferredFunc.return_type, match.return_type)
-					if check != nil
-						a_new = check[0]
-						b_new = check[1]
-						add_declared_type_to_hash(completionHash, a_new, b_new)
-					end
+					add_declared_type_to_hash(completionHash, inferredFunc.return_type, match.return_type)
 				end
 			end
 			inferredFunc.args.each_with_index do |val, index|
 				if isArbitraryType(val)
 					# puts "Arg \##{index+1}: #{val} =:= #{match.args[index].type}"
-					check = try_to_simplify(val, match.args[index].type)
-					if check != nil
-						a_new = check[0]
-						b_new = check[1]
-						add_declared_type_to_hash(completionHash, a_new, b_new)
-					end
+					add_declared_type_to_hash(completionHash, val, match.args[index].type)
 				end
 			end
 		end

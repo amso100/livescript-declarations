@@ -7,7 +7,7 @@ arr :- [int]
 brr = [y1, y2, y3]
 y1 :- int
 y2 :- float
-y3 :- int
+y3 :- float
 
 crr = []
 crr :- [[int]]

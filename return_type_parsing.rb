@@ -156,8 +156,7 @@ def local_parse_for_type(cur_line, local_vars, func_name, var_references, scope,
 			return [var0, funcs_dict[var1].return_type, var1]
 		else
 			var_references.each do |ref|
-				if ref != nil and ref.name == var1 and ref.scope == scope and ref.declared_type != nil and not isArbitraryType(ref.declared_type)
-					# puts "22 #{func_name}-> #{line}: #{var0} = #{var1} : #{local_vars[var1].declared_type}"
+				if ref != nil and ref.name == var1 and ref.func_name == func_name and ref.declared_type != nil and not isArbitraryType(ref.declared_type)
 					return [var0, ref.declared_type, var1]
 				end
 			end
@@ -181,9 +180,10 @@ def global_parse_for_type(cur_line, global_vars, var_references, funcs_dict)
 			# puts "(#{global_vars[var0].declared_type}) #{var0} = #{var1} (#{funcs_dict[var1].return_type})"
 			return [var0, funcs_dict[var1].return_type, var1]
 		else
-			ref = check_global_references(var1, var_references)
-			if ref != nil and ref.declared_type != nil and ref.declared_type != ""
-				return [var0, ref.declared_type, var1]
+			var_references.each do |ref|
+				if ref != nil and ref.name == var1 and ref.kind == "global" and ref.declared_type != nil and not isArbitraryType(ref.declared_type)
+					return [var0, ref.declared_type, var1]
+				end
 			end
 		end
 	end

@@ -240,7 +240,7 @@ ast_j['lines'].each {|line|
 ast = Ast.new ast_j
 
 res_bad_assigns.each_pair do |lineno, bA|
-	puts "Bad Assign at line #{bA.lineno} #{bA.line} (#{bA.var1} :- #{bA.type1}, #{bA.var2} :- #{bA.type2})"
+	puts "Bad Assign at line #{bA.lineno+1} #{bA.line} (#{bA.var1} :- #{bA.type1}, #{bA.var2} :- #{bA.type2})"
 end
 
 # ---------- In this line the declaration results are added -----

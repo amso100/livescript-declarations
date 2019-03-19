@@ -1,17 +1,57 @@
 digraph RGL__DirectedAdjacencyGraph {
+    "T-27" [
+        fontsize = 8,
+        label = "T-27"
+    ]
+
+    "T-26" [
+        fontsize = 8,
+        label = "T-26"
+    ]
+
+    "T-25" [
+        fontsize = 8,
+        label = "T-25"
+    ]
+
+    "T-24" [
+        fontsize = 8,
+        label = "T-24"
+    ]
+
+    "T-23" [
+        fontsize = 8,
+        label = "T-23"
+    ]
+
     "T-19" [
         fontsize = 8,
         label = "T-19"
     ]
 
-    int [
+    "T-22" [
         fontsize = 8,
-        label = int
+        label = "T-22"
     ]
 
-    "T-10" [
+    "T-21" [
         fontsize = 8,
-        label = "T-10"
+        label = "T-21"
+    ]
+
+    "T-20" [
+        fontsize = 8,
+        label = "T-20"
+    ]
+
+    "T-14" [
+        fontsize = 8,
+        label = "T-14"
+    ]
+
+    "T-13" [
+        fontsize = 8,
+        label = "T-13"
     ]
 
     "T-12" [
@@ -19,9 +59,9 @@ digraph RGL__DirectedAdjacencyGraph {
         label = "T-12"
     ]
 
-    float [
+    "T-11" [
         fontsize = 8,
-        label = float
+        label = "T-11"
     ]
 
     "T-6" [
@@ -29,63 +69,56 @@ digraph RGL__DirectedAdjacencyGraph {
         label = "T-6"
     ]
 
-    "T-8" [
-        fontsize = 8,
-        label = "T-8"
-    ]
-
     "T-5" [
         fontsize = 8,
         label = "T-5"
     ]
 
-    "T-4" [
-        fontsize = 8,
-        label = "T-4"
-    ]
-
-    "T-3" [
-        fontsize = 8,
-        label = "T-3"
-    ]
-
-    "T-19" -> int [
+    "T-27" -> "T-26" [
         fontsize = 8
     ]
 
-    int -> "T-12" [
+    "T-26" -> "T-25" [
         fontsize = 8
     ]
 
-    int -> "T-6" [
+    "T-25" -> "T-24" [
         fontsize = 8
     ]
 
-    "T-10" -> "T-19" [
+    "T-24" -> "T-23" [
         fontsize = 8
     ]
 
-    "T-10" -> int [
+    "T-19" -> "T-22" [
         fontsize = 8
     ]
 
-    float -> "T-12" [
+    "T-22" -> "T-21" [
         fontsize = 8
     ]
 
-    "T-8" -> int [
+    "T-21" -> "T-20" [
         fontsize = 8
     ]
 
-    "T-5" -> int [
+    "T-20" -> "T-19" [
         fontsize = 8
     ]
 
-    "T-4" -> int [
+    "T-14" -> "T-13" [
         fontsize = 8
     ]
 
-    "T-3" -> int [
+    "T-12" -> "T-14" [
+        fontsize = 8
+    ]
+
+    "T-11" -> "T-13" [
+        fontsize = 8
+    ]
+
+    "T-6" -> "T-5" [
         fontsize = 8
     ]
 }

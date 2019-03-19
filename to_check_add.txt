@@ -1,6 +1,6 @@
 
-2. Add support for array types and their inference
-3. Add support for class methods declarations
+
+3. Add support for class methods declarations (???)
 
 class A
   b: (args) ->
