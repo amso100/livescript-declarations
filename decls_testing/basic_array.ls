@@ -11,3 +11,6 @@ y3 :- float
 
 crr = []
 crr :- [[int]]
+
+drr = [[y1], [y2], [3.0]]
+drr :- [[float]]

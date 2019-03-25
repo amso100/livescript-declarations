@@ -32,7 +32,7 @@ def remove_decls(text)
 		if lineIsFunctionStart(line)
 			res = line.gsub(/:- *[A-Za-z]{1}[A-Za-z0-9_]*/, " ")
 		else
-			res = line.gsub(/[A-Za-z]{1}[A-Za-z0-9_]* *:- *[A-Za-z]{1}[A-Za-z0-9_]*/, " ")
+			res = line.gsub(/[A-Za-z]{1}[A-Za-z0-9_]* *:- *\[*[A-Za-z]{1}[A-Za-z0-9_]*\]*/, " ")
 		end
 		final_res += res
 	end
